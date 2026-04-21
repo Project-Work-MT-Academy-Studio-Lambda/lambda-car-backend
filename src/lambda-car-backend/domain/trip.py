@@ -16,14 +16,18 @@ class Trip:
     end_km: int | None
 
     def __post_init__(self):
+        now = datetime.now()
+        TOLLERANCE = timedelta(minutes=5)
         if not self.start_position:
             raise ValueError(Constants.START_POSITION_CANNOT_BE_EMPTY)
         if not self.end_position:
             raise ValueError(Constants.END_POSITION_CANNOT_BE_EMPTY)
-        if self.start_date and abs(datetime.now() - self.start_date) <= timedelta(minutes=5):
+        if self.start_date and self.start_date > now + TOLLERANCE:
             raise ValueError(Constants.START_DATE_CANNOT_BE_IN_THE_FUTURE)
-        if self.end_date and abs(datetime.now() - self.end_date) <= timedelta(minutes=5):
+        if self.end_date and self.start_date and self.end_date > self.start_date + TOLLERANCE:
             raise ValueError(Constants.END_DATE_CANNOT_BE_IN_THE_FUTURE)
+        if self.end_date and self.start_date and self.end_date < self.start_date:
+            raise ValueError(Constants.END_DATE_CANNOT_BE_BEFORE_START_DATE)
         if self.start_km and self.start_km < 0:
             raise ValueError(Constants.START_KM_CANNOT_BE_NEGATIVE)
 
