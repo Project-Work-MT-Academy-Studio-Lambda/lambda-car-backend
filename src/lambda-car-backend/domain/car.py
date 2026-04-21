@@ -4,6 +4,7 @@ from uuid import UUID
 @dataclass
 class Car:
     id: UUID
+    trip_id: UUID
     plate: str
     km: int
     fuel_level: int

@@ -4,6 +4,7 @@ from uuid import UUID
 @dataclass
 class Refueling:
     id: UUID
+    trip_id: UUID
     cart_number: str
     liter_price: float
     liters: int

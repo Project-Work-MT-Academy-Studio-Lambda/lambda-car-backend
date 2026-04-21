@@ -4,11 +4,14 @@ from datetime import datetime, timedelta
 from user import User
 from car import Car
 from commit import Commit
-from refeuling import Refueling
+from refueling import Refueling
 
 @dataclass
 class Trip:
     id: UUID
+    car_id: UUID
+    user_id: UUID
+    commit_id: UUID
     user: User
     car: Car
     commit: Commit
@@ -39,3 +42,7 @@ class Trip:
     @property
     def duration(self) -> int:
         return int((self.end_date - self.start_date).total_seconds() / 60)
+    
+    @property
+    def is_active(self) -> bool:
+        return datetime.now() < self.end_date if self.end_date else True
