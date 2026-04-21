@@ -9,11 +9,11 @@ class Trip:
     car_id: UUID
     user_id: UUID
     start_position: str
-    end_position: str | None
+    end_position: str | None = None
     start_date: datetime
-    end_date: datetime | None
+    end_date: datetime | None = None
     start_km: int
-    end_km: int | None
+    end_km: int | None = None
 
     def __post_init__(self):
         now = datetime.now()
