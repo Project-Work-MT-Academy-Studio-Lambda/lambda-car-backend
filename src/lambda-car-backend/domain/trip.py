@@ -1,21 +1,12 @@
 from dataclasses import dataclass
 from uuid import UUID
 from datetime import datetime, timedelta
-from user import User
-from car import Car
-from commit import Commit
-from refueling import Refueling
 
 @dataclass
 class Trip:
     id: UUID
     car_id: UUID
     user_id: UUID
-    commit_id: UUID
-    user: User
-    car: Car
-    commit: Commit
-    refueling: Refueling | None
     start_position: str | None
     end_position: str | None
     start_date: datetime | None
