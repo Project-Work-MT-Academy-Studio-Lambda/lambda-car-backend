@@ -38,4 +38,5 @@ class Constants:
     USER_NOT_OWNER = "User is not the owner of the resource"
     REFUELING_NOT_FOUND = "Refueling not found"
 
+    CAR_ALREADY_EXISTS = "Car with the same plate already exists"
 
