@@ -14,6 +14,12 @@ class CommitService:
     ):
         self.commit_repository = commit_repository
         self.trip_repository = trip_repository
+    
+    def _get_commit_or_raise(self, commit_id: UUID) -> Commit:
+        commit = self.commit_repository.get_by_id(commit_id)
+        if not commit:
+            raise ValueError(Constants.COMMIT_NOT_FOUND)
+        return commit
 
     def create_commit(
         self,
@@ -36,9 +42,7 @@ class CommitService:
         return commit
 
     def get_commit(self, commit_id: UUID) -> Commit:
-        commit = self.commit_repository.get_by_id(commit_id)
-        if not commit:
-            raise ValueError(Constants.COMMIT_NOT_FOUND)
+        commit = self._get_commit_or_raise(commit_id)
         return commit
 
     def get_commits_for_trip(self, trip_id: UUID) -> list[Commit]:
@@ -55,7 +59,7 @@ class CommitService:
         code: str,
         description: str | None = None,
     ) -> Commit:
-        commit = self.get_commit(commit_id)
+        commit = self._get_commit_or_raise(commit_id)
 
         trip = self.trip_repository.get_by_id(trip_id)
         if not trip:
@@ -69,7 +73,5 @@ class CommitService:
         return commit
 
     def delete_commit(self, commit_id: UUID) -> None:
-        commit = self.get_commit(commit_id)
-        if not commit:
-            raise ValueError(Constants.COMMIT_NOT_FOUND)
+        commit = self._get_commit_or_raise(commit_id)
         self.commit_repository.delete(commit_id)
