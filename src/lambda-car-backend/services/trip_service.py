@@ -25,7 +25,13 @@ class TripService:
         self.user_repository = user_repository
         self.car_repository = car_repository
         self.commit_repository = commit_repository
-            
+    
+    def _get_trip_or_raise(self, trip_id: UUID) -> Trip:
+        trip = self.trip_repository.get_by_id(trip_id)
+        if not trip:
+            raise ValueError(Constants.TRIP_NOT_FOUND)
+        return trip
+
     def create_trip(self, 
                     user_id: UUID,
                     car_id: UUID,
@@ -62,28 +68,8 @@ class TripService:
         return trip
     
     def get_trip(self, trip_id: UUID) -> Trip:
-        trip = self.trip_repository.get_by_id(trip_id)
-        if not trip:
-            raise ValueError(Constants.TRIP_NOT_FOUND)
+        trip = self._get_trip_or_raise(trip_id)
         return trip
-    
-    def get_trips_for_user(self, user_id: UUID) -> list[Trip]:
-        user = self.user_repository.get_by_id(user_id)
-        if not user:
-            raise ValueError(Constants.USER_NOT_FOUND)
-        return self.trip_repository.list_by_user_id(user_id)
-    
-    def get_trips_for_car(self, car_id: UUID) -> list[Trip]:
-        car = self.car_repository.get_by_id(car_id)
-        if not car:
-            raise ValueError(Constants.CAR_NOT_FOUND)
-        return self.trip_repository.list_by_car_id(car_id)
-    
-    def get_trips_for_commit(self, commit_id: UUID) -> list[Trip]:
-        commit = self.commit_repository.get_by_id(commit_id)
-        if not commit:
-            raise ValueError(Constants.COMMIT_NOT_FOUND)
-        return self.trip_repository.list_by_commit_id(commit_id)
     
     def update_trip(
             self,
@@ -120,14 +106,14 @@ class TripService:
         self.trip_repository.delete(trip_id)
     
     def get_car_for_trip(self, trip_id: UUID) -> Car:
-        trip = self.get_trip(trip_id)
+        trip = self._get_trip_or_raise(trip_id)
         car = self.car_repository.get_by_id(trip.car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
         return car
     
     def get_commit_for_trip(self, trip_id: UUID) -> Commit | None:
-        trip = self.get_trip(trip_id)
+        trip = self._get_trip_or_raise(trip_id)
         if not trip.commit_id:
             return None
         commit = self.commit_repository.get_by_id(trip.commit_id)
@@ -136,7 +122,5 @@ class TripService:
         return commit
     
     def get_refuelings_for_trip(self, trip_id: UUID) -> list[Refueling]:
-        trip = self.get_trip(trip_id)
-        if not trip:
-            raise ValueError(Constants.TRIP_NOT_FOUND)
+        trip = self._get_trip_or_raise(trip_id)
         return self.refueling_repository.list_by_trip_id(trip_id)
