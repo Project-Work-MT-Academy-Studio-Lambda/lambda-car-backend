@@ -13,6 +13,11 @@ from repositories.user_repository import UserRepository
 
 from constants import Constants
 
+from commands.trip_commands import (
+    OpenTripCommand,
+    CloseTripCommand,
+)
+
 class TripService:
     def __init__(
         self,
@@ -32,38 +37,27 @@ class TripService:
             raise ValueError(Constants.TRIP_NOT_FOUND)
         return trip
 
-    def create_trip(self, 
-                    user_id: UUID,
-                    car_id: UUID,
-                    start_position: str,
-                    start_date: datetime,
-                    start_km: int,
-    ) -> Trip:
-        car = self.car_repository.get_by_id(car_id)
+    def create_trip(self,cmd: OpenTripCommand ) -> Trip:
+        car = self.car_repository.get_by_id(cmd.car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
-        user = self.user_repository.get_by_id(user_id)
+        user = self.user_repository.get_by_id(cmd.user_id)
         if not user:
             raise ValueError(Constants.USER_NOT_FOUND)
         trip = Trip(
             id=uuid4(),
-            car_id=car_id,
-            user_id=user_id,
-            start_position=start_position,
-            start_date=start_date,
-            start_km=start_km
+            car_id=cmd.car_id,
+            user_id=cmd.user_id,
+            start_position=cmd.start_position,
+            start_date=cmd.start_date,
+            start_km=cmd.start_km
         )
         self.trip_repository.save(trip)
         return trip
     
-    def close_trip(self,
-                    trip_id: UUID,
-                    end_position: str,
-                    end_date: datetime,
-                    end_km: int
-    ) -> Trip:
-        trip = self.get_trip(trip_id)
-        trip.close_trip(end_position, end_date, end_km)
+    def close_trip(self, cmd: CloseTripCommand) -> Trip:
+        trip = self.get_trip(cmd.trip_id)
+        trip.close_trip(cmd.end_position, cmd.end_date, cmd.end_km)
         self.trip_repository.save(trip)
         return trip
     
