@@ -1,10 +1,14 @@
 from uuid import UUID, uuid4
-from datetime import datetime
 
 from domain.refueling import Refueling
 from repositories.refueling_repository import RefuelingRepository
 from repositories.trip_repository import TripRepository
 from constants import Constants
+
+from commands.refueling_commands import (
+    CreateRefuelingCommand,
+    UpdateRefuelingCommand
+)
 
 
 class RefuelingService:
@@ -24,21 +28,18 @@ class RefuelingService:
 
     def create_refueling(
         self,
-        trip_id: UUID,
-        liters: float,
-        price: float,
-        date: datetime,
+        cmd: CreateRefuelingCommand
     ) -> Refueling:
-        trip = self.trip_repository.get_by_id(trip_id)
+        trip = self.trip_repository.get_by_id(cmd.trip_id)
         if not trip:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
         refueling = Refueling(
             id=uuid4(),
-            trip_id=trip_id,
-            liters=liters,
-            price=price,
-            date=date,
+            trip_id=cmd.trip_id,
+            liters=cmd.liters,
+            price=cmd.liter_price,
+            date=cmd.date,
         )
 
         self.refueling_repository.save(refueling)
@@ -57,22 +58,18 @@ class RefuelingService:
 
     def update_refueling(
         self,
-        refueling_id: UUID,
-        trip_id: UUID,
-        liters: float,
-        price: float,
-        date: datetime,
+        cmd: UpdateRefuelingCommand
     ) -> Refueling:
-        refueling = self._get_refueling_or_raise(refueling_id)
+        refueling = self._get_refueling_or_raise(cmd.refueling_id)
 
-        trip = self.trip_repository.get_by_id(trip_id)
+        trip = self.trip_repository.get_by_id(cmd.trip_id)
         if not trip:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
-        refueling.trip_id = trip_id
-        refueling.liters = liters
-        refueling.price = price
-        refueling.date = date
+        refueling.trip_id = cmd.trip_id
+        refueling.liters = cmd.liters
+        refueling.price = cmd.liter_price
+        refueling.date = cmd.date
 
         self.refueling_repository.save(refueling)
         return refueling

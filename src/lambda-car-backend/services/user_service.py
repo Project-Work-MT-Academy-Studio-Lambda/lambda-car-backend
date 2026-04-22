@@ -4,6 +4,12 @@ from repositories.user_repository import UserRepository
 from constants import Constants
 from security.password_hasher import ArgonPasswordHasher
 
+from commands.user_commands import (
+    CreateUserCommand,
+    UpdateUserCommand,
+    ChangePasswordCommand
+)
+
 class UserService:
     def __init__(self, user_repository: UserRepository, password_hasher: ArgonPasswordHasher):
         self.user_repository = user_repository
@@ -15,10 +21,10 @@ class UserService:
             raise ValueError(Constants.USER_NOT_FOUND)
         return user
 
-    def create_user(self, name: str, email: str, password: str) -> User:
-        if self.user_repository.exists_by_email(email):
+    def create_user(self, cmd: CreateUserCommand) -> User:
+        if self.user_repository.exists_by_email(cmd.email):
             raise ValueError(Constants.EMAIL_ALREADY_USE)
-        user = User(id=uuid4(), name=name, email=email, hashed_password=self.password_hasher.hash(password))
+        user = User(id=uuid4(), name=cmd.name, email=cmd.email, hashed_password=self.password_hasher.hash(cmd.password))
         self.user_repository.save(user)
         return user
     
@@ -28,20 +34,20 @@ class UserService:
     def get_user_by_email(self, email: str) -> User | None:
         return self.user_repository.get_by_email(email)
     
-    def update_user(self, user_id: UUID, name: str, email: str, password: str) -> User:
-        user = self._get_user_or_raise(user_id)
-        if user.email != email and self.user_repository.exists_by_email(email):
+    def update_user(self, cmd: UpdateUserCommand) -> User:
+        user = self._get_user_or_raise(cmd.user_id)
+        if user.email != cmd.email and self.user_repository.exists_by_email(cmd.email):
             raise ValueError(Constants.EMAIL_ALREADY_USE)
-        user.name = name
-        user.email = email
+        user.name = cmd.name
+        user.email = cmd.email
         self.user_repository.save(user)
         return user
     
-    def change_password(self, user_id: UUID, current_password: str, new_password: str) -> User:
-        user = self._get_user_or_raise(user_id)
-        if not self.password_hasher.verify(current_password, user.hashed_password):
+    def change_password(self, cmd: ChangePasswordCommand) -> User:
+        user = self._get_user_or_raise(cmd.user_id)
+        if not self.password_hasher.verify(cmd.current_password, user.hashed_password):
             raise ValueError(Constants.INVALID_CREDENTIALS)
-        user.hashed_password = self.password_hasher.hash(new_password)
+        user.hashed_password = self.password_hasher.hash(cmd.new_password)
         self.user_repository.save(user)
         return user
 

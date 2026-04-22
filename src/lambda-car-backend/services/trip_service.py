@@ -1,5 +1,4 @@
 from uuid import UUID, uuid4
-from datetime import datetime
 
 from domain.trip import Trip
 from domain.car import Car
