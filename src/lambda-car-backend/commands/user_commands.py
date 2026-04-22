@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from uuid import UUID
+from domain.enum.role import Role
+from constants import Constants
 
 @dataclass
 class CreateUserCommand:
     name: str
     email: str
     password: str
+    role:Role = Constants.USER
 
 @dataclass
 class UpdateUserCommand:

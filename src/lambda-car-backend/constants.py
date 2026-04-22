@@ -25,6 +25,7 @@ class Constants:
     EMAIL_CANNOT_BE_EMPTY = "Email cannot be empty"
     PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty"
     HASHED_PASSWORD_CANNOT_BE_EMPTY = "Hashed password cannot be empty"
+    INVALID_ROLE = "Invalid role"
 
     EMAIL_ALREADY_EXISTS = "Email already exists"
     EMAIL_ALREADY_USE = "Email already in use"
@@ -40,3 +41,5 @@ class Constants:
 
     CAR_ALREADY_EXISTS = "Car with the same plate already exists"
 
+    ADMIN = "admin"
+    USER = "user"

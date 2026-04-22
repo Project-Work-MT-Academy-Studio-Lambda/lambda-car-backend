@@ -24,7 +24,7 @@ class UserService:
     def create_user(self, cmd: CreateUserCommand) -> User:
         if self.user_repository.exists_by_email(cmd.email):
             raise ValueError(Constants.EMAIL_ALREADY_USE)
-        user = User(id=uuid4(), name=cmd.name, email=cmd.email, hashed_password=self.password_hasher.hash(cmd.password))
+        user = User(id=uuid4(), name=cmd.name, email=cmd.email, hashed_password=self.password_hasher.hash(cmd.password), role=cmd.role)
         self.user_repository.save(user)
         return user
     
