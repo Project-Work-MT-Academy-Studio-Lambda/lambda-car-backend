@@ -4,7 +4,6 @@ from datetime import datetime
 
 @dataclass
 class CreateRefuelingCommand:
-    refueling_id: UUID
     trip_id: UUID
     cart_number: str
     liter_price: float

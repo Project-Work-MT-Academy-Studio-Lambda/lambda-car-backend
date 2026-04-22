@@ -5,6 +5,10 @@ from repositories.commit_repository import CommitRepository
 from repositories.trip_repository import TripRepository
 from constants import Constants
 
+from commands.commit_commands import (
+    CreateCommitCommand,
+    UpdateCommitCommand
+)
 
 class CommitService:
     def __init__(
@@ -23,19 +27,17 @@ class CommitService:
 
     def create_commit(
         self,
-        trip_id: UUID,
-        code: str,
-        description: str | None = None,
+        cmd: CreateCommitCommand
     ) -> Commit:
-        trip = self.trip_repository.get_by_id(trip_id)
+        trip = self.trip_repository.get_by_id(cmd.trip_id)
         if not trip:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
         commit = Commit(
             id=uuid4(),
-            trip_id=trip_id,
-            code=code,
-            description=description,
+            trip_id=cmd.trip_id,
+            code=cmd.code,
+            description=cmd.description,
         )
 
         self.commit_repository.save(commit)
@@ -54,20 +56,17 @@ class CommitService:
 
     def update_commit(
         self,
-        commit_id: UUID,
-        trip_id: UUID,
-        code: str,
-        description: str | None = None,
+        cmd: UpdateCommitCommand
     ) -> Commit:
-        commit = self._get_commit_or_raise(commit_id)
+        commit = self._get_commit_or_raise(cmd.commit_id)
 
-        trip = self.trip_repository.get_by_id(trip_id)
+        trip = self.trip_repository.get_by_id(cmd.trip_id)
         if not trip:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
-        commit.trip_id = trip_id
-        commit.code = code
-        commit.description = description
+        commit.trip_id = cmd.trip_id
+        commit.code = cmd.code
+        commit.description = cmd.description
 
         self.commit_repository.save(commit)
         return commit
