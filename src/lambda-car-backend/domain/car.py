@@ -6,10 +6,11 @@ from constants import Constants
 @dataclass
 class Car:
     id: UUID
-    trip_id: UUID
+    fuel_info_id: UUID
+    mileage_id: UUID
     plate: str
-    km: int
-    fuel_level: int
+    model: str
+    c02_per_km: float | None = None
 
     def __post_init__(self):
         if not self.plate:

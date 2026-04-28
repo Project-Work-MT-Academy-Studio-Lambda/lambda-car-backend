@@ -1,3 +1,5 @@
+from domain.enum.role import Role
+
 class Constants:
 
     CODE_CANNOT_BE_EMPTY = "Code cannot be empty"
@@ -6,6 +8,7 @@ class Constants:
     INVALID_PLATE_FORMAT = "Invalid plate format: {plate}"
     KM_CANNOT_BE_NEGATIVE = "Km cannot be negative"
     FUEL_LEVEL_CANNOT_BE_NEGATIVE = "Fuel level cannot be negative"
+    FUEL_CARD_CANNOT_BE_EMPTY = "Fuel card cannot be empty"
 
     CODE_CANNOT_BE_EMPTY = "Code cannot be empty"
     DESCRIPTION_CANNOT_BE_EMPTY = "Description cannot be empty"
@@ -20,6 +23,10 @@ class Constants:
     START_DATE_CANNOT_BE_IN_THE_FUTURE = "Start date cannot be in the future"
     END_DATE_CANNOT_BE_IN_THE_FUTURE = "End date cannot be in the future"
     START_KM_CANNOT_BE_NEGATIVE = "Start km cannot be negative"
+
+    KM_TOTAL_CANNOT_BE_NEGATIVE = "Total km cannot be negative"
+    KM_SERVICING_CANNOT_BE_NEGATIVE = "Servicing km cannot be negative"
+    KM_WHEELS_CANNOT_BE_NEGATIVE = "Wheels km cannot be negative"
 
     NAME_CANNOT_BE_EMPTY = "Name cannot be empty"
     EMAIL_CANNOT_BE_EMPTY = "Email cannot be empty"
@@ -41,9 +48,6 @@ class Constants:
 
     CAR_ALREADY_EXISTS = "Car with the same plate already exists"
 
-    ADMIN = "admin"
-    USER = "user"
-
     JWT_SECRET = "JWT_SECRET"
     DEV_SECRET = "dev-secret"
 
@@ -56,4 +60,18 @@ class Constants:
 
     SUB="sub"
 
-    SUPPORTED_BASE_API_ROLES = [ADMIN, USER]
+    SUPPORTED_BASE_API_ROLES = [Role.ADMIN.value, Role.USER.value]
+
+    API_V1_PREFIX = "/api/v1/lambdacar"
+
+    BEARER = "bearer"
+
+    ADMIN = "admin"
+    USER = "user"
+
+    GASOLINE = "gasoline"
+    DIESEL = "diesel"
+    ADBLUE = "adblue"
+    GPL = "GPL"
+    METHANE = "methane"
+    ELECTRIC = "electric"

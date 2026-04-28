@@ -69,7 +69,7 @@ def require_user(payload=Depends(get_current_token_payload)):
     if payload.get(Constants.ROLE) not in Constants.SUPPORTED_BASE_API_ROLES:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=Constants.USER_ROLE_REQUIRED,
+            detail=Constants.INVALID_CREDENTIALS,
         )
     return payload[Constants.SUB]
 
@@ -78,7 +78,7 @@ def require_admin(payload=Depends(get_current_token_payload)):
     if payload.get(Constants.ROLE) != Constants.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=Constants.ADMIN_ROLE_REQUIRED,
+            detail=Constants.INVALID_CREDENTIALS,
         )
     return payload[Constants.SUB]
 

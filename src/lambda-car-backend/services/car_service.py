@@ -30,9 +30,11 @@ class CarService:
 
         car = Car(
             id=uuid4(),
-            trip_id=cmd.trip_id,
             plate=cmd.plate,
             model=cmd.model,
+            km_total=cmd.km_total,
+            km_servicing=cmd.km_servicing,
+            km_wheels=cmd.km_wheels
         )
 
         self.car_repository.save(car)
@@ -55,7 +57,10 @@ class CarService:
 
         car.plate = cmd.plate
         car.model = cmd.model
-
+        car.km_total = cmd.km_total
+        car.km_servicing = cmd.km_servicing
+        car.km_wheels = cmd.km_wheels
+        car.c02_per_km = cmd.c02_per_km
         self.car_repository.save(car)
         return car
 
