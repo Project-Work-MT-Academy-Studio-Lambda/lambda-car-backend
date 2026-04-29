@@ -15,16 +15,18 @@ from services.auth_service import AuthService
 from security.password_hasher import ArgonPasswordHasher
 from security.token_service import TokenService
 from constants import Constants
-import os
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
+from settings import load_settings
+
+from jwt import ExpiredSignatureError
 
 
 _tables = DynamoDbTables()
 _password_hasher = ArgonPasswordHasher()
-_secret = os.getenv(Constants.JWT_SECRET, Constants.DEV_SECRET)
-_token_service = TokenService(secret=_secret)
+_settings = load_settings()
+_token_service = TokenService(secret=_settings.jwt_secret, expiration_minutes=_settings.jwt_expiration_minutes)
 
 _user_repository = DynamoDbUserRepository(_tables.user_table)
 _car_repository = DynamoDbCarRepository(_tables.car_table)
@@ -59,6 +61,11 @@ def get_current_user(
 def get_current_token_payload(credentials=Depends(security)):
     try:
         return _token_service.verify_token(credentials.credentials)
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=Constants.EXPIRED_TOKEN,
+        )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,7 +101,6 @@ def get_trip_service() -> TripService:
         car_repository=_car_repository,
         user_repository=_user_repository,
         commit_repository=_commit_repository,
-        refueling_repository=_refueling_repository,
     )
 
 

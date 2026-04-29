@@ -4,8 +4,8 @@ from datetime import datetime
 
 @dataclass
 class CreateRefuelingCommand:
-    trip_id: UUID
-    cart_number: str
+    car_id: UUID
+    card_number: str
     liter_price: float
     liters: int
     receipt_photo: str
@@ -14,8 +14,8 @@ class CreateRefuelingCommand:
 @dataclass
 class UpdateRefuelingCommand:
     refueling_id: UUID
-    trip_id: UUID
-    cart_number: str
+    car_id: UUID
+    card_number: str
     liter_price: float
     liters: int
     receipt_photo: str

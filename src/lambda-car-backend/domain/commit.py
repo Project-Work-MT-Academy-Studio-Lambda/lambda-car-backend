@@ -5,7 +5,6 @@ from constants import Constants
 @dataclass
 class Commit:
     id: UUID
-    trip_id: UUID
     code: str
     description: str
 

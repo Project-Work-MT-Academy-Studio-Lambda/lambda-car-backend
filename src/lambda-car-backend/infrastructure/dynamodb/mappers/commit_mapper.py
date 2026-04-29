@@ -1,18 +1,20 @@
-from domain.commit import Commit
-from uuid import UUID
+# infrastructure/dynamodb/mappers/commit_mapper.py
 
-def commit_to_dynamodb_item(commit: Commit) -> dict:
+from uuid import UUID
+from domain.commit import Commit
+
+
+def commit_to_item(commit: Commit) -> dict:
     return {
-        'id': str(commit.id),
-        'trip_id': str(commit.trip_id),
-        'code': commit.code,
-        'description': commit.description
+        "id": str(commit.id),
+        "code": commit.code,
+        "description": commit.description,
     }
 
-def dynamodb_item_to_commit(item: dict) -> Commit:
+
+def item_to_commit(item: dict) -> Commit:
     return Commit(
-        id=UUID(item['id']),
-        trip_id=UUID(item['trip_id']),
-        code=item['code'],
-        description=item['description']
+        id=UUID(item["id"]),
+        code=item["code"],
+        description=item["description"],
     )

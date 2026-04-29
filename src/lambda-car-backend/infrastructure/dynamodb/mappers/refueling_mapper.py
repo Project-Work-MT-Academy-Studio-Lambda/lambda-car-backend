@@ -1,21 +1,21 @@
 from domain.refueling import Refueling
 from uuid import UUID
 
-def refueling_to_dynamodb_item(refueling: Refueling) -> dict:
+def refueling_to_item(refueling: Refueling) -> dict:
     return {
         'id': str(refueling.id),
-        'trip_id': str(refueling.trip_id),
-        'cart_number': refueling.cart_number,
+        'car_id': str(refueling.car_id),
+        'card_number': refueling.card_number,
         'liter_price': refueling.liter_price,
         'liters': refueling.liters,
         'receipt_photo': refueling.receipt_photo,
     }
 
-def dynamodb_item_to_refueling(item: dict) -> Refueling:
+def item_to_refueling(item: dict) -> Refueling:
     return Refueling(
         id=UUID(item['id']),
-        trip_id=UUID(item['trip_id']),
-        cart_number=item['cart_number'],
+        car_id=UUID(item['car_id']),
+        card_number=item['card_number'],
         liter_price=item['liter_price'],
         liters=item['liters'],
         receipt_photo=item['receipt_photo']

@@ -12,5 +12,5 @@ class CommitRepository(Protocol):
     def delete(self, commit_id: UUID) -> None:
         ...
     
-    def list_by_trip_id(self, trip_id: UUID) -> list[Commit]:
+    def get_by_code(self, code: str) -> Commit | None:
         ...

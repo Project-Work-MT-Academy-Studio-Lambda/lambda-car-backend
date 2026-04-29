@@ -2,7 +2,7 @@ from uuid import UUID, uuid4
 
 from domain.refueling import Refueling
 from repositories.refueling_repository import RefuelingRepository
-from repositories.trip_repository import TripRepository
+from repositories.car_repository import CarRepository
 from constants import Constants
 
 from commands.refueling_commands import (
@@ -15,11 +15,11 @@ class RefuelingService:
     def __init__(
         self,
         refueling_repository: RefuelingRepository,
-        trip_repository: TripRepository,
+        car_repository: CarRepository,
     ):
         self.refueling_repository = refueling_repository
-        self.trip_repository = trip_repository
-    
+        self.car_repository = car_repository
+
     def _get_refueling_or_raise(self, refueling_id: UUID) -> Refueling:
         refueling = self.refueling_repository.get_by_id(refueling_id)
         if not refueling:
@@ -30,13 +30,13 @@ class RefuelingService:
         self,
         cmd: CreateRefuelingCommand
     ) -> Refueling:
-        trip = self.trip_repository.get_by_id(cmd.trip_id)
-        if not trip:
-            raise ValueError(Constants.TRIP_NOT_FOUND)
+        car = self.car_repository.get_by_id(cmd.car_id)
+        if not car:
+            raise ValueError(Constants.CAR_NOT_FOUND)
 
         refueling = Refueling(
             id=uuid4(),
-            trip_id=cmd.trip_id,
+            car_id=cmd.car_id,
             liters=cmd.liters,
             price=cmd.liter_price,
             date=cmd.date,
@@ -49,12 +49,12 @@ class RefuelingService:
         refueling = self._get_refueling_or_raise(refueling_id)
         return refueling
 
-    def get_refuelings_for_trip(self, trip_id: UUID) -> list[Refueling]:
-        trip = self.trip_repository.get_by_id(trip_id)
-        if not trip:
-            raise ValueError(Constants.TRIP_NOT_FOUND)
+    def get_refuelings_for_car(self, car_id: UUID) -> list[Refueling]:
+        car = self.car_repository.get_by_id(car_id)
+        if not car:
+            raise ValueError(Constants.CAR_NOT_FOUND)
 
-        return self.refueling_repository.list_by_trip_id(trip_id)
+        return self.refueling_repository.list_by_car_id(car_id)
 
     def update_refueling(
         self,
@@ -62,11 +62,11 @@ class RefuelingService:
     ) -> Refueling:
         refueling = self._get_refueling_or_raise(cmd.refueling_id)
 
-        trip = self.trip_repository.get_by_id(cmd.trip_id)
-        if not trip:
-            raise ValueError(Constants.TRIP_NOT_FOUND)
+        car = self.car_repository.get_by_id(cmd.car_id)
+        if not car:
+            raise ValueError(Constants.CAR_NOT_FOUND)
 
-        refueling.trip_id = cmd.trip_id
+        refueling.car_id = cmd.car_id
         refueling.liters = cmd.liters
         refueling.price = cmd.liter_price
         refueling.date = cmd.date

@@ -7,8 +7,8 @@ class DynamoDbTables:
         resource = create_dynamodb_resource()
         config = load_dynamodb_config()
 
-        self.users = resource.Table(config.users_table)
-        self.trips = resource.Table(config.trips_table)
-        self.cars = resource.Table(config.cars_table)
-        self.refuelings = resource.Table(config.refuelings_table)
-        self.commits = resource.Table(config.commits_table)
+        self.user_table = resource.Table(config.users_table)
+        self.trip_table = resource.Table(config.trips_table)
+        self.car_table = resource.Table(config.cars_table)
+        self.refueling_table = resource.Table(config.refuelings_table)
+        self.commit_table = resource.Table(config.commits_table)

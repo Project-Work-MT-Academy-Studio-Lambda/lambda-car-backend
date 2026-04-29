@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 from datetime import datetime, timedelta
 from constants import Constants
+from .enum.trip_status import TripStatus
 
 @dataclass
 class Trip:
@@ -11,6 +12,7 @@ class Trip:
     start_position: str
     start_date: datetime
     start_km: int
+    status: TripStatus = TripStatus.ACTIVE
     end_position: str | None = None
     end_date: datetime | None = None
     end_km: int | None = None
@@ -51,6 +53,7 @@ class Trip:
         if end_km < self.start_km:
             raise ValueError(Constants.END_KM_CANNOT_BE_LESS_THAN_START_KM)
         
+        self.status = TripStatus.CLOSED
         self.end_position = end_position
         self.end_date = end_date
         self.end_km = end_km

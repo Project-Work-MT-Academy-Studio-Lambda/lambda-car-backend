@@ -6,6 +6,7 @@ from datetime import datetime
 class OpenTripCommand:
     user_id: UUID
     car_id: UUID
+    commit_id: UUID
     start_position: str
     start_date: datetime
     start_km: int

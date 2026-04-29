@@ -12,6 +12,6 @@ class RefuelingRepository(Protocol):
     def delete(self, refueling_id: UUID) -> None:
         ...
     
-    def list_by_trip_id(self, trip_id: UUID) -> list[Refueling]:
+    def list_by_car_id(self, car_id: UUID) -> list[Refueling]:
         ...
         

@@ -26,9 +26,9 @@ class DynamoDbRefuelingRepository(RefuelingRepository):
     def delete(self, refueling_id: UUID) -> None:
         self.refueling_table.delete_item(Key={"id": str(refueling_id)})
 
-    def list_by_trip_id(self, trip_id: UUID) -> list[Refueling]:
+    def list_by_car_id(self, car_id: UUID) -> list[Refueling]:
         response = self.refueling_table.query(
-            IndexName="trip_id-index",
-            KeyConditionExpression=Key("trip_id").eq(str(trip_id)),
+            IndexName="car_id-index",
+            KeyConditionExpression=Key("car_id").eq(str(car_id)),
         )
         return [item_to_refueling(item) for item in response.get("Items", [])]

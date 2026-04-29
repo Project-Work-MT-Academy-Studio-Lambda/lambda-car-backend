@@ -23,9 +23,12 @@ def create_car(
         cmd = CreateCarCommand(
             plate=payload.plate,
             model=payload.model,
-            km_total=payload.km_total,
-            km_servicing=payload.km_servicing,
-            km_wheels=payload.km_wheels
+            km_total=payload.mileage.km_total,
+            km_servicing=payload.mileage.km_servicing,
+            km_wheels=payload.mileage.km_wheels,
+            fuel_type=payload.fuel_info.type,
+            fuel_level=payload.fuel_info.level,
+            fuel_card=payload.fuel_info.card,
         )
         car = service.create_car(cmd)
         return CarResponse.from_domain(car)
@@ -58,6 +61,12 @@ def update_car(
             car_id=car_id,
             plate=payload.plate,
             model=payload.model,
+            km_total=payload.mileage.km_total,
+            km_servicing=payload.mileage.km_servicing,
+            km_wheels=payload.mileage.km_wheels,
+            fuel_type=payload.fuel_info.type,
+            fuel_level=payload.fuel_info.level,
+            fuel_card=payload.fuel_info.card,
         )
         car = service.update_car(cmd)
         return CarResponse.from_domain(car)

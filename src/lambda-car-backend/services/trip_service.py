@@ -37,13 +37,19 @@ class TripService:
             raise ValueError(Constants.TRIP_NOT_FOUND)
         return trip
 
-    def create_trip(self,cmd: OpenTripCommand ) -> Trip:
+    def open_trip(self,cmd: OpenTripCommand ) -> Trip:
         car = self.car_repository.get_by_id(cmd.car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
         user = self.user_repository.get_by_id(cmd.user_id)
         if not user:
             raise ValueError(Constants.USER_NOT_FOUND)
+        commit = self.commit_repository.get_by_id(cmd.commit_id)
+        if not commit:
+            raise ValueError(Constants.COMMIT_NOT_FOUND)
+        active_trip = self.trip_repository.get_active_trip_by_car_id(cmd.car_id)
+        if active_trip:
+            raise ValueError(Constants.CAR_ALREADY_IN_USE)
         trip = Trip(
             id=uuid4(),
             car_id=cmd.car_id,
@@ -113,3 +119,6 @@ class TripService:
     def get_refuelings_for_trip(self, trip_id: UUID) -> list[Refueling]:
         trip = self._get_trip_or_raise(trip_id)
         return self.refueling_repository.list_by_trip_id(trip_id)
+    
+    def get_trips_for_user(self, user_id: UUID) -> list[Trip]:
+        return self.trip_repository.list_by_user_id(user_id)

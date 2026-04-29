@@ -4,6 +4,7 @@ from boto3.dynamodb.conditions import Key
 from domain.trip import Trip
 from repositories.trip_repository import TripRepository
 from infrastructure.dynamodb.mappers.trip_mapper import trip_to_item, item_to_trip
+from domain.enum.trip_status import TripStatus
 
 
 class DynamoDbTripRepository(TripRepository):
@@ -36,3 +37,16 @@ class DynamoDbTripRepository(TripRepository):
             KeyConditionExpression=Key("car_id").eq(str(car_id)),
         )
         return [item_to_trip(item) for item in response.get("Items", [])]
+    
+    def get_active_trip_by_car_id(self, car_id: UUID) -> Trip | None:
+        response = self.trip_table.query(
+            IndexName="car_id-status-index",
+            KeyConditionExpression=Key("car_id").eq(str(car_id)) & Key("status").eq(TripStatus.ACTIVE.value),
+            Limit=1,
+        )
+
+        items = response.get("Items", [])
+        if not items:
+            return None
+
+        return item_to_trip(items[0])

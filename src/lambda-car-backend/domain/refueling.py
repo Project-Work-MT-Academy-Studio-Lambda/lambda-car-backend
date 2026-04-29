@@ -5,10 +5,11 @@ from constants import Constants
 @dataclass
 class Refueling:
     id: UUID
-    trip_id: UUID
+    car_id: UUID
     liter_price: float
     liters: int
     receipt_photo: str
+    cartd_number: str | None = None
 
     def __post_init__(self):
         if self.liter_price < 0:
@@ -17,6 +18,8 @@ class Refueling:
             raise ValueError(Constants.LITERS_CANNOT_BE_NEGATIVE)
         if not self.receipt_photo:
             raise ValueError(Constants.RECEIPT_PHOTO_CANNOT_BE_EMPTY)
+        if self.card_number is not None and not self.card_number.strip():
+            raise ValueError(Constants.FUEL_CARD_CANNOT_BE_EMPTY)
     
     @property
     def total_cost(self) -> float:

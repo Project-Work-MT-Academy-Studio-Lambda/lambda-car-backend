@@ -17,15 +17,18 @@ class DynamoDbCommitRepository(CommitRepository):
             return None
         return item_to_commit(item)
 
+    def get_by_code(self, code: str) -> Commit | None:
+        response = self.commit_table.query(
+            IndexName="code-index",
+            KeyConditionExpression=Key("code").eq(code),
+        )
+        items = response.get("Items", [])
+        if not items:
+            return None
+        return item_to_commit(items[0])
+
     def save(self, commit: Commit) -> None:
         self.commit_table.put_item(Item=commit_to_item(commit))
 
     def delete(self, commit_id: UUID) -> None:
         self.commit_table.delete_item(Key={"id": str(commit_id)})
-
-    def list_by_trip_id(self, trip_id: UUID) -> list[Commit]:
-        response = self.commit_table.query(
-            IndexName="trip_id-index",
-            KeyConditionExpression=Key("trip_id").eq(str(trip_id)),
-        )
-        return [item_to_commit(item) for item in response.get("Items", [])]

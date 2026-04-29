@@ -7,7 +7,8 @@ from constants import Constants
 
 from commands.commit_commands import (
     CreateCommitCommand,
-    UpdateCommitCommand
+    UpdateCommitCommand,
+    ImportCommitsCommand
 )
 
 class CommitService:
@@ -74,3 +75,48 @@ class CommitService:
     def delete_commit(self, commit_id: UUID) -> None:
         commit = self._get_commit_or_raise(commit_id)
         self.commit_repository.delete(commit_id)
+
+    def import_commits(self, cmd: ImportCommitsCommand) -> dict:
+        created = 0
+        updated = 0
+        skipped = 0
+
+        seen_codes = set()
+
+        for item in cmd.items:
+            code = (item.code or "").strip()
+            description = (item.description or "").strip()
+
+            if not code or not description:
+                skipped += 1
+                continue
+
+            if code in seen_codes:
+                skipped += 1
+                continue
+
+            seen_codes.add(code)
+
+            existing = self.commit_repository.get_by_code(code)
+
+            if existing is None:
+                commit = Commit(
+                    id=uuid4(),
+                    code=code,
+                    description=description,
+                )
+                self.commit_repository.save(commit)
+                created += 1
+            else:
+                if existing.description != description:
+                    existing.description = description
+                    self.commit_repository.save(existing)
+                    updated += 1
+                else:
+                    skipped += 1
+
+        return {
+            "created": created,
+            "updated": updated,
+            "skipped": skipped,
+        }

@@ -1,5 +1,3 @@
-from domain.enum.role import Role
-
 class Constants:
 
     CODE_CANNOT_BE_EMPTY = "Code cannot be empty"
@@ -60,7 +58,7 @@ class Constants:
 
     SUB="sub"
 
-    SUPPORTED_BASE_API_ROLES = [Role.ADMIN.value, Role.USER.value]
+    SUPPORTED_BASE_API_ROLES = ["admin", "user"]
 
     API_V1_PREFIX = "/api/v1/lambdacar"
 
@@ -75,3 +73,6 @@ class Constants:
     GPL = "GPL"
     METHANE = "methane"
     ELECTRIC = "electric"
+
+    EXPIRED_TOKEN = "Token has expired"
+    CAR_ALREADY_IN_USE = "Car is already in use in another active trip"
