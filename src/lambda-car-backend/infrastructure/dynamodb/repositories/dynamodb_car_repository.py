@@ -26,6 +26,13 @@ class DynamoDbCarRepository(CarRepository):
         if not items:
             return None
         return item_to_car(items[0])
+    
+    def find_free_cars(self) -> list[Car]:
+        response = self.car_table.scan(
+            FilterExpression=Key("status").eq("FREE")
+        )
+        items = response.get("Items", [])
+        return [item_to_car(item) for item in items]
 
     def save(self, car: Car) -> None:
         self.car_table.put_item(Item=car_to_item(car))

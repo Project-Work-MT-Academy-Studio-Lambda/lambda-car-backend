@@ -78,3 +78,7 @@ class Constants:
     CAR_ALREADY_IN_USE = "Car is already in use in another active trip"
 
     UNAUTHORIZED = "Not authorized to perform this action"
+
+    ACTIVE_TRIP_EXISTS = "There is already an active trip for this car"
+
+    NO_ACTIVE_TRIP = "There is no active trip for this car"

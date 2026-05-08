@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from ....domain.car import Car, Mileage, FuelInfo
+from ....domain.enum.car_status import CarStatus
 
 
 def car_to_item(car: Car) -> dict:
@@ -8,6 +9,7 @@ def car_to_item(car: Car) -> dict:
         "id": str(car.id),
         "plate": car.plate,
         "model": car.model,
+        "status": car.status,
         "mileage": {
             "km_total": car.mileage.km_total,
             "km_servicing": car.mileage.km_servicing,
@@ -29,6 +31,7 @@ def item_to_car(item: dict) -> Car:
         id=UUID(item["id"]),
         plate=item["plate"],
         model=item.get("model"),
+        status=CarStatus(item["status"]),
         mileage=Mileage(
             km_total=mileage_item["km_total"],
             km_servicing=mileage_item["km_servicing"],

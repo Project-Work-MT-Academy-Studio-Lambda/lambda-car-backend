@@ -8,9 +8,12 @@ class CarRepository(Protocol):
 
     def save(self, car: Car) -> None:
         ...
-
+        
     def delete(self, car_id: UUID) -> None:
         ...
     
     def get_by_plate(self, plate: str) -> Car | None:
+        ...
+    
+    def find_free_cars(self) -> list[Car]:
         ...

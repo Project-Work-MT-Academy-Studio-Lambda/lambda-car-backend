@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 import re
 from ..constants import Constants
-from .enum.refueling_type import RefuelingType
+from .enum.refueling_type import RefuelingType, CarStatus
 
 @dataclass
 class Car:
@@ -12,6 +12,7 @@ class Car:
     plate: str
     model: str
     co2_per_km: float | None = None
+    status: CarStatus = CarStatus.FREE
 
 
     def __post_init__(self):
