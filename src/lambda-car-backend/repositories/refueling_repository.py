@@ -3,7 +3,7 @@ from uuid import UUID
 from ..domain.refueling import Refueling
 
 class RefuelingRepository(Protocol):
-    def get_by_id(self, refueling_id: UUID) -> Refueling | None:
+    def get_by_id(self, refueling_id: UUID, user_id: UUID, user_role: str) -> Refueling | None:
         ...
 
     def save(self, refueling: Refueling) -> None:
@@ -12,6 +12,6 @@ class RefuelingRepository(Protocol):
     def delete(self, refueling_id: UUID) -> None:
         ...
     
-    def list_by_car_id(self, car_id: UUID) -> list[Refueling]:
+    def list_by_car_id(self, car_id: UUID, user_id: UUID, user_role: str) -> list[Refueling]:
         ...
         

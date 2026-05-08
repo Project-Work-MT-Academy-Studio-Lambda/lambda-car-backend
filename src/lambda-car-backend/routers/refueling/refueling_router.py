@@ -23,6 +23,8 @@ from ...schemas.refueling_schemas import (
 )
 from ...services.refueling_service import RefuelingService
 
+from decimal import Decimal
+
 
 router = APIRouter(prefix="/refuelings", tags=["refuelings"])
 
@@ -30,8 +32,8 @@ router = APIRouter(prefix="/refuelings", tags=["refuelings"])
 @router.post("/", response_model=RefuelingResponse, status_code=status.HTTP_201_CREATED)
 async def create_refueling(
     car_id: UUID = Form(...),
-    liters: float = Form(...),
-    liter_price: float = Form(...),
+    liters: Decimal = Form(...),
+    liter_price: Decimal = Form(...),
     date: datetime = Form(...),
     receipt_photo: UploadFile = File(...),
     card_number: str | None = Form(None),

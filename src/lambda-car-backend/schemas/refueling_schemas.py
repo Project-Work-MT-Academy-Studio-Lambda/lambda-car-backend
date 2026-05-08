@@ -4,11 +4,12 @@ from pydantic import BaseModel, Field
 
 from ..domain.refueling import Refueling
 
+from decimal import Decimal
 
 class CreateRefuelingRequest(BaseModel):
     car_id: UUID
-    liters: float = Field(..., gt=0)
-    liter_price: float = Field(..., ge=0)
+    liters: Decimal = Field(..., gt=0)
+    liter_price: Decimal = Field(..., ge=0)
     date: datetime
     receipt_photo: str
     card_number: str | None = None
@@ -16,8 +17,8 @@ class CreateRefuelingRequest(BaseModel):
 
 
 class UpdateRefuelingRequest(BaseModel):
-    liters: float = Field(..., gt=0)
-    liter_price: float = Field(..., ge=0)
+    liters: Decimal = Field(..., gt=0)
+    liter_price: Decimal = Field(..., ge=0)
     date: datetime
     receipt_photo: str
     card_number: str | None = None
@@ -25,8 +26,8 @@ class UpdateRefuelingRequest(BaseModel):
 class RefuelingResponse(BaseModel):
     id: UUID
     car_id: UUID
-    liters: float
-    liter_price: float
+    liters: Decimal
+    liter_price: Decimal
     date: datetime
     receipt_photo: str
     card_number: str | None = None

@@ -1,9 +1,11 @@
 from uuid import UUID
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 from ....domain.commit import Commit
 from ....repositories.commit_repository import CommitRepository
 from ..mappers.commit_mapper import commit_to_item, item_to_commit
+
+from ....domain.enum.role import Role
 
 
 class DynamoDbCommitRepository(CommitRepository):
@@ -26,6 +28,16 @@ class DynamoDbCommitRepository(CommitRepository):
         if not items:
             return None
         return item_to_commit(items[0])
+    
+    def get_by_trip_id(self, trip_id: UUID, user_id: UUID, user_role: str) -> list[Commit]:
+        query_params = {
+        "IndexName": "trip_id-index",
+        "KeyConditionExpression": Key("trip_id").eq(str(trip_id)),
+        }
+        if not user_role == Role.ADMIN.value:
+            query_params["FilterExpression"] = Attr("user_id").eq(str(user_id))
+        response = self.commit_table.query(**query_params)
+        return [item_to_commit(item) for item in response.get("Items", [])]
 
     def save(self, commit: Commit) -> None:
         self.commit_table.put_item(Item=commit_to_item(commit))

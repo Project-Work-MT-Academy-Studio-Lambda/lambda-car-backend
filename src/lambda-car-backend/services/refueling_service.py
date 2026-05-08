@@ -12,6 +12,8 @@ from ..commands.refueling_commands import (
 
 from ..storage.receipt_photo_storage import ReceiptPhotoStorage
 
+from ..logger import get_logger
+
 
 class RefuelingService:
     def __init__(
@@ -23,11 +25,13 @@ class RefuelingService:
         self.refueling_repository = refueling_repository
         self.car_repository = car_repository
         self.receipt_photo_storage = receipt_photo_storage
+        self.logger = get_logger(__name__)
 
-    def _get_refueling_or_raise(self, refueling_id: UUID) -> Refueling:
-        refueling = self.refueling_repository.get_by_id(refueling_id)
+    def _get_refueling_or_raise(self, refueling_id: UUID, user_id: UUID, user_role: str) -> Refueling:
+        refueling = self.refueling_repository.get_by_id(refueling_id, user_id, user_role)
         if not refueling:
             raise ValueError(Constants.REFUELING_NOT_FOUND)
+        
         return refueling
 
     def create_refueling(
@@ -37,7 +41,8 @@ class RefuelingService:
         car = self.car_repository.get_by_id(cmd.car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
-
+        self.logger.debug(f"Creating refueling for car_id: {cmd.car_id}, liters: {cmd.liters}, liter_price: {cmd.liter_price}, date: {cmd.date}")
+        self.logger.debug(f"Received command price type: {type(cmd.liter_price)}, liters type: {type(cmd.liters)}")
         refueling_id = uuid4()
 
         receipt_photo = self.receipt_photo_storage.save_receipt_photo(
@@ -51,17 +56,18 @@ class RefuelingService:
             id=refueling_id,
             car_id=cmd.car_id,
             liters=cmd.liters,
-            price=cmd.liter_price,
+            liter_price=cmd.liter_price,
             date=cmd.date,
             receipt_photo=receipt_photo,
             card_number=cmd.card_number
         )
-
+        self.logger.debug(f"Created refueling: {refueling}")
+        self.logger.debug(f"liters type: {type(cmd.liters)}, liter_price type: {type(cmd.liter_price)}")
         self.refueling_repository.save(refueling)
         return refueling
 
-    def get_refueling(self, refueling_id: UUID) -> Refueling:
-        refueling = self._get_refueling_or_raise(refueling_id)
+    def get_refueling(self, refueling_id: UUID, user_id: UUID, user_role: str) -> Refueling:
+        refueling = self._get_refueling_or_raise(refueling_id, user_id, user_role)
         return refueling
 
     def get_refuelings_for_car(self, car_id: UUID) -> list[Refueling]:

@@ -76,3 +76,5 @@ class Constants:
 
     EXPIRED_TOKEN = "Token has expired"
     CAR_ALREADY_IN_USE = "Car is already in use in another active trip"
+
+    UNAUTHORIZED = "Not authorized to perform this action"

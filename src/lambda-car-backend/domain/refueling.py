@@ -1,15 +1,18 @@
 from dataclasses import dataclass
 from uuid import UUID
 from ..constants import Constants
+from datetime import datetime
+from decimal import Decimal
 
 @dataclass
 class Refueling:
     id: UUID
+    date: datetime
     car_id: UUID
-    liter_price: float
-    liters: int
+    liter_price: Decimal
+    liters: Decimal
     receipt_photo: str
-    cartd_number: str | None = None
+    card_number: str | None = None
 
     def __post_init__(self):
         if self.liter_price < 0:
