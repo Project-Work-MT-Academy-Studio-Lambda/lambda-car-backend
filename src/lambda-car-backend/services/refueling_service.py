@@ -70,31 +70,31 @@ class RefuelingService:
         refueling = self._get_refueling_or_raise(refueling_id, user_id, user_role)
         return refueling
 
-    def get_refuelings_for_car(self, car_id: UUID) -> list[Refueling]:
+    def get_refuelings_for_car(self, car_id: UUID, user_id: UUID, user_role: str) -> list[Refueling]:
         car = self.car_repository.get_by_id(car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
 
-        return self.refueling_repository.list_by_car_id(car_id)
+        return self.refueling_repository.list_by_car_id(car_id, user_id, user_role)
 
     def update_refueling(
         self,
         cmd: UpdateRefuelingCommand
     ) -> Refueling:
-        refueling = self._get_refueling_or_raise(cmd.refueling_id)
+        
+        refueling = self._get_refueling_or_raise(cmd.refueling_id, cmd.user_id, cmd.user_role)
 
         car = self.car_repository.get_by_id(cmd.car_id)
         if not car:
             raise ValueError(Constants.CAR_NOT_FOUND)
 
-        refueling.car_id = cmd.car_id
         refueling.liters = cmd.liters
-        refueling.price = cmd.liter_price
+        refueling.liter_price = cmd.liter_price
         refueling.date = cmd.date
 
         self.refueling_repository.save(refueling)
         return refueling
 
-    def delete_refueling(self, refueling_id: UUID) -> None:
-        refueling = self._get_refueling_or_raise(refueling_id)
+    def delete_refueling(self, refueling_id: UUID, user_id: UUID, user_role: str) -> None:
+        refueling = self._get_refueling_or_raise(refueling_id, user_id, user_role)
         self.refueling_repository.delete(refueling_id)

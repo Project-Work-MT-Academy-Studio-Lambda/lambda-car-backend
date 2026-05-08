@@ -21,6 +21,8 @@ from ...schemas.user_schemas import (
 from ...services.user_service import UserService
 from ...logger import get_logger
 
+from ...domain.user import CurrentUser
+
 router = APIRouter(prefix="/admin/users", tags=["admin-users"])
 
 logger = get_logger(__name__)
@@ -28,7 +30,7 @@ logger = get_logger(__name__)
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(
     payload: CreateUserRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: UserService = Depends(get_user_service),
 ):
     try:
@@ -48,7 +50,7 @@ def create_user(
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(
     user_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: UserService = Depends(get_user_service),
 ):
     try:
@@ -63,7 +65,7 @@ def get_user(
 def update_user(
     user_id: UUID,
     payload: UpdateUserRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: UserService = Depends(get_user_service),
 ):
     try:
@@ -82,7 +84,7 @@ def update_user(
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: UserService = Depends(get_user_service),
 ):
     try:
@@ -94,7 +96,7 @@ def delete_user(
 def change_user_password(
     user_id: UUID,
     payload: ChangePasswordRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: UserService = Depends(get_user_service),
 ):
     logger.debug(f"Attempting to change password for user_id: {user_id}")

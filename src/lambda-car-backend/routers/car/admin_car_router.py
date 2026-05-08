@@ -8,6 +8,8 @@ from ...schemas.car_schemas import CreateCarRequest, UpdateCarRequest, CarRespon
 from ...services.car_service import CarService
 from ...logger import get_logger
 
+from ...domain.user import CurrentUser
+
 
 router = APIRouter(prefix="/admin/cars", tags=["admin-cars"])
 logger = get_logger(__name__)
@@ -15,10 +17,10 @@ logger = get_logger(__name__)
 @router.post("/", response_model=CarResponse, status_code=status.HTTP_201_CREATED)
 def create_car(
     payload: CreateCarRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),
 ):
-    logger.debug(f"Admin {admin_id} is attempting to create a car with plate: {payload.plate}")
+    logger.debug(f"Admin {current_user.id} is attempting to create a car with plate: {payload.plate}")
     try:
         cmd = CreateCarCommand(
             plate=payload.plate,
@@ -42,7 +44,7 @@ def create_car(
 @router.get("/{car_id}", response_model=CarResponse)
 def get_car(
     car_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),
 ):
     try:
@@ -56,7 +58,7 @@ def get_car(
 def update_car(
     car_id: UUID,
     payload: UpdateCarRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),
 ):
     try:
@@ -80,7 +82,7 @@ def update_car(
 @router.delete("/{car_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_car(
     car_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),
 ):
     try:

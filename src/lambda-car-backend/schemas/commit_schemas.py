@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List
 
 from ..domain.commit import Commit

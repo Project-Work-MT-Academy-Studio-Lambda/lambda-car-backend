@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from uuid import UUID
 import re
 from ..constants import Constants
-from .enum.refueling_type import RefuelingType, CarStatus
+from .enum.refueling_type import RefuelingType
+from .enum.car_status import CarStatus
 
 @dataclass
 class Car:

@@ -22,6 +22,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from .settings import load_settings
 
+from .domain.user import CurrentUser
+
 from jwt.exceptions import ExpiredSignatureError
 
 _tables = DynamoDbTables()
@@ -81,7 +83,7 @@ def require_user(payload=Depends(get_current_token_payload)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail=Constants.INVALID_CREDENTIALS,
         )
-    return payload[Constants.SUB]
+    return CurrentUser(id=payload[Constants.SUB], role=payload[Constants.ROLE])
 
 
 def require_admin(payload=Depends(get_current_token_payload)):
@@ -90,7 +92,7 @@ def require_admin(payload=Depends(get_current_token_payload)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail=Constants.INVALID_CREDENTIALS,
         )
-    return payload[Constants.SUB]
+    return CurrentUser(id=payload[Constants.SUB], role=payload[Constants.ROLE])
 
 def get_car_service() -> CarService:
     return CarService(

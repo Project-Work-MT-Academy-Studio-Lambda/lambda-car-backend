@@ -13,10 +13,9 @@ class CreateRefuelingRequest(BaseModel):
     date: datetime
     receipt_photo: str
     card_number: str | None = None
-    
-
 
 class UpdateRefuelingRequest(BaseModel):
+    car_id: UUID
     liters: Decimal = Field(..., gt=0)
     liter_price: Decimal = Field(..., ge=0)
     date: datetime

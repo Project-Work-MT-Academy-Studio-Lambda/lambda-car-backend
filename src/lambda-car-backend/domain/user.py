@@ -4,6 +4,11 @@ from ..constants import Constants
 from ..domain.enum.role import Role
 
 @dataclass
+class CurrentUser:
+    id: UUID
+    role: Role
+
+@dataclass
 class User:
     id: UUID
     name: str

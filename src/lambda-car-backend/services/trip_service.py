@@ -122,7 +122,7 @@ class TripService:
             self._check_active_trip_or_raise(cmd.car_id)
             car.status = CarStatus.FREE
             self.car_repository.save(car)
-            car = self.car_repository.get_by_id(cmd.car_id)
+            car = self._get_car_or_raise(cmd.car_id)
             car.status = CarStatus.IN_USE
             self.car_repository.save(car)
         trip.car_id = cmd.car_id

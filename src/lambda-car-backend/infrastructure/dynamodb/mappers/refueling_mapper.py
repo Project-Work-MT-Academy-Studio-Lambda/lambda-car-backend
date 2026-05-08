@@ -1,9 +1,11 @@
 from ....domain.refueling import Refueling
 from uuid import UUID
+from datetime import datetime
 
 def refueling_to_item(refueling: Refueling) -> dict:
     return {
         'id': str(refueling.id),
+        'date': refueling.date.isoformat(),
         'car_id': str(refueling.car_id),
         'card_number': refueling.card_number,
         'liter_price': refueling.liter_price,
@@ -18,5 +20,6 @@ def item_to_refueling(item: dict) -> Refueling:
         card_number=item['card_number'],
         liter_price=item['liter_price'],
         liters=item['liters'],
-        receipt_photo=item['receipt_photo']
+        receipt_photo=item['receipt_photo'],
+        date=datetime.fromisoformat(item['date'])
     )

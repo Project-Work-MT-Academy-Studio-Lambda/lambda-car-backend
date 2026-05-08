@@ -14,6 +14,8 @@ class CreateRefuelingCommand:
     receipt_content: bytes
     receipt_content_type: str
     date: datetime
+    user_id: UUID
+    user_role: str
 
 @dataclass
 class UpdateRefuelingCommand:
@@ -23,3 +25,5 @@ class UpdateRefuelingCommand:
     liter_price: Decimal
     liters: int
     date: datetime
+    user_id: UUID
+    user_role: str

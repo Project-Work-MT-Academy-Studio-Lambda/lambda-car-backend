@@ -21,6 +21,8 @@ from ...services.commit_service import CommitService
 
 from ...logger import get_logger
 
+from ...domain.user import CurrentUser
+
 
 router = APIRouter(prefix="/admin/commits", tags=["admin-commits"])
 logger = get_logger(__name__)
@@ -28,34 +30,34 @@ logger = get_logger(__name__)
 @router.post("/", response_model=CommitResponse, status_code=status.HTTP_201_CREATED)
 def create_commit(
     payload: CreateCommitRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CommitService = Depends(get_commit_service),
 ):
     try:
-        logger.debug(f"Admin {admin_id} is attempting to create a commit with code: {payload.code}")
+        logger.debug(f"Admin {current_user.id} is attempting to create a commit with code: {payload.code}")
         commit = service.create_commit(
             CreateCommitCommand(
                 code=payload.code,
                 description=payload.description,
             )
         )
-        logger.debug(f"Admin {admin_id} successfully created commit with code: {payload.code}")
+        logger.debug(f"Admin {current_user.id} successfully created commit with code: {payload.code}")
         return CommitResponse.from_domain(commit)
     except ValueError as e:
-        logger.error(f"Admin {admin_id} failed to create commit with code: {payload.code}. Error: {e}")
+        logger.error(f"Admin {current_user.id} failed to create commit with code: {payload.code}. Error: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get("/{commit_id}", response_model=CommitResponse)
 def get_commit(
     commit_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CommitService = Depends(get_commit_service),
 ):
-    logger.debug(f"Admin {admin_id} is attempting to retrieve commit with ID: {commit_id}")
+    logger.debug(f"Admin {current_user.id} is attempting to retrieve commit with ID: {commit_id}")
     try:
         commit = service.get_commit(commit_id)
-        logger.debug(f"Admin {admin_id} successfully retrieved commit with ID: {commit_id}")
+        logger.debug(f"Admin {current_user.id} successfully retrieved commit with ID: {commit_id}")
         return CommitResponse.from_domain(commit)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -65,10 +67,10 @@ def get_commit(
 def update_commit(
     commit_id: UUID,
     payload: UpdateCommitRequest,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CommitService = Depends(get_commit_service),
 ):
-    logger.debug(f"Admin {admin_id} is attempting to update commit with ID: {commit_id}")
+    logger.debug(f"Admin {current_user.id} is attempting to update commit with ID: {commit_id}")
     try:
         commit = service.update_commit(
             UpdateCommitCommand(
@@ -77,7 +79,7 @@ def update_commit(
                 description=payload.description,
             )
         )
-        logger.debug(f"Admin {admin_id} successfully updated commit with ID: {commit_id}")
+        logger.debug(f"Admin {current_user.id} successfully updated commit with ID: {commit_id}")
         return CommitResponse.from_domain(commit)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -86,15 +88,15 @@ def update_commit(
 @router.delete("/{commit_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_commit(
     commit_id: UUID,
-    admin_id: UUID = Depends(require_admin),
+    current_user: CurrentUser = Depends(require_admin),
     service: CommitService = Depends(get_commit_service),
 ):
-    logger.debug(f"Admin {admin_id} is attempting to delete commit with ID: {commit_id}")
+    logger.debug(f"Admin {current_user.id} is attempting to delete commit with ID: {commit_id}")
     try:
         service.delete_commit(commit_id)
-        logger.debug(f"Admin {admin_id} successfully deleted commit with ID: {commit_id}")
+        logger.debug(f"Admin {current_user.id} successfully deleted commit with ID: {commit_id}")
     except ValueError as e:
-        logger.error(f"Admin {admin_id} failed to delete commit with ID: {commit_id}. Error: {e}")
+        logger.error(f"Admin {current_user.id} failed to delete commit with ID: {commit_id}. Error: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 

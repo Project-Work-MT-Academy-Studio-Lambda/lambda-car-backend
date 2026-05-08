@@ -23,11 +23,16 @@ from ...schemas.refueling_schemas import (
 )
 from ...services.refueling_service import RefuelingService
 
+from ...domain.user import CurrentUser
+
 from decimal import Decimal
+
+from ...logger import get_logger
 
 
 router = APIRouter(prefix="/refuelings", tags=["refuelings"])
 
+logger = get_logger(__name__)
 
 @router.post("/", response_model=RefuelingResponse, status_code=status.HTTP_201_CREATED)
 async def create_refueling(
@@ -37,7 +42,7 @@ async def create_refueling(
     date: datetime = Form(...),
     receipt_photo: UploadFile = File(...),
     card_number: str | None = Form(None),
-    current_user_id: UUID = Depends(require_user),
+    current_user: CurrentUser = Depends(require_user),
     service: RefuelingService = Depends(get_refueling_service),
 ):
     try:
@@ -51,7 +56,9 @@ async def create_refueling(
             card_number=card_number,
             receipt_filename=receipt_photo.filename,
             receipt_content=content,
-            receipt_content_type=receipt_photo.content_type
+            receipt_content_type=receipt_photo.content_type,
+            user_id=current_user.id,
+            user_role=current_user.role,
         )
 
         refueling = service.create_refueling(
@@ -67,14 +74,17 @@ async def create_refueling(
 @router.get("/{refueling_id}", response_model=RefuelingResponse)
 def get_refueling(
     refueling_id: UUID,
-    current_user_id: UUID = Depends(require_user),
+    current_user: CurrentUser = Depends(require_user),
     service: RefuelingService = Depends(get_refueling_service),
 ):
     try:
         refueling = service.get_refueling(
             refueling_id=refueling_id,
-            user_id=current_user_id,
+            user_id=current_user.id,
+            user_role=current_user.role,
         )
+
+        logger.debug(f"User {current_user.id} is attempting to access refueling {refueling_id}")
 
         return RefuelingResponse.from_domain(refueling)
 
@@ -85,13 +95,14 @@ def get_refueling(
 @router.get("/car/{car_id}", response_model=list[RefuelingResponse])
 def list_refuelings_for_car(
     car_id: UUID,
-    current_user_id: UUID = Depends(require_user),
+    current_user: CurrentUser = Depends(require_user),
     service: RefuelingService = Depends(get_refueling_service),
 ):
     try:
         refuelings = service.get_refuelings_for_car(
             car_id=car_id,
-            user_id=current_user_id,
+            user_id=current_user.id,
+            user_role=current_user.role,
         )
 
         return [RefuelingResponse.from_domain(refueling) for refueling in refuelings]
@@ -104,20 +115,23 @@ def list_refuelings_for_car(
 def update_refueling(
     refueling_id: UUID,
     payload: UpdateRefuelingRequest,
-    current_user_id: UUID = Depends(require_user),
+    current_user: CurrentUser = Depends(require_user),
     service: RefuelingService = Depends(get_refueling_service),
 ):
     try:
         cmd = UpdateRefuelingCommand(
             refueling_id=refueling_id,
             liters=payload.liters,
-            price=payload.price,
+            liter_price=payload.liter_price,
             date=payload.date,
+            card_number=payload.card_number,
+            user_id=current_user.id,
+            user_role=current_user.role,
+            car_id=payload.car_id
         )
 
         refueling = service.update_refueling(
             cmd=cmd,
-            user_id=current_user_id,
         )
 
         return RefuelingResponse.from_domain(refueling)
@@ -129,13 +143,14 @@ def update_refueling(
 @router.delete("/{refueling_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_refueling(
     refueling_id: UUID,
-    current_user_id: UUID = Depends(require_user),
+    current_user: CurrentUser = Depends(require_user),
     service: RefuelingService = Depends(get_refueling_service),
 ):
     try:
         service.delete_refueling(
             refueling_id=refueling_id,
-            user_id=current_user_id,
+            user_id=current_user.id,
+            user_role=current_user.role,
         )
 
     except ValueError as e:
