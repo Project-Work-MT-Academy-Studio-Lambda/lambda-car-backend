@@ -18,6 +18,11 @@ class DynamoDbUserRepository(UserRepository):
         if item is None:
             return None
         return item_to_user(item)
+    
+    def find_all(self) -> list[User]:
+        response = self.user_table.scan()
+        items = response.get("Items", [])
+        return [item_to_user(item) for item in items]
 
     def get_by_email(self, email: str) -> User | None:
         try:

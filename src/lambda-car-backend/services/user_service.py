@@ -31,6 +31,9 @@ class UserService:
         self.user_repository.save(user)
         return user
     
+    def find_all(self) -> list[User]:
+        return self.user_repository.find_all()
+    
     def get_user(self, user_id: UUID) -> User | None:
         return self.user_repository.get_by_id(user_id)
     

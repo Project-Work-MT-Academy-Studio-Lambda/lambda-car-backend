@@ -27,6 +27,16 @@ router = APIRouter(prefix="/admin/users", tags=["admin-users"])
 
 logger = get_logger(__name__)
 
+@router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
+def list_users(
+    current_user: CurrentUser = Depends(require_admin),
+    service: UserService = Depends(get_user_service),
+):
+    logger.debug(f"Admin {current_user.id} is listing all users")
+    users = service.find_all()
+    logger.debug(f"Found {len(users)} users in the system")
+    return [UserResponse.from_domain(user) for user in users]
+
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(
     payload: CreateUserRequest,
