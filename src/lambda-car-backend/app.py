@@ -14,6 +14,8 @@ from .routers.commit.commit_router import router as commit_router
 from .routers.trip.trip_router import router as trip_router
 from .routers.refueling.refueling_router import router as refueling_router
 
+from .routers.operations.admin_excel_router import router as admin_excel_router
+
 
 settings = load_settings()
 
@@ -32,7 +34,7 @@ app.include_router(commit_router, prefix=settings.api_prefix)
 app.include_router(car_router, prefix=settings.api_prefix)
 app.include_router(trip_router, prefix=settings.api_prefix)
 app.include_router(refueling_router, prefix=settings.api_prefix)
-
+app.include_router(admin_excel_router, prefix=settings.api_prefix)
 
 @app.get(f"{settings.api_prefix}/health", tags=["health"])
 def health_check():

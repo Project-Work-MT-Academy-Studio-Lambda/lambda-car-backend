@@ -14,3 +14,6 @@ class RefuelingRepository(Protocol):
     
     def list_by_car_id(self, car_id: UUID) -> list[Refueling]:
         ...
+    
+    def find_all(self) -> list[Refueling]:
+        ...

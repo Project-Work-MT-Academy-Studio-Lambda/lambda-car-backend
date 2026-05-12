@@ -7,6 +7,7 @@ def commit_to_item(commit: Commit) -> dict:
         "id": str(commit.id),
         "code": commit.code,
         "description": commit.description,
+        "status": commit.status,
     }
 
 
@@ -15,4 +16,5 @@ def item_to_commit(item: dict) -> Commit:
         id=UUID(item["id"]),
         code=item["code"],
         description=item["description"],
+        status=item["status"],
     )

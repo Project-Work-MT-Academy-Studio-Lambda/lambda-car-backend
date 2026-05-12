@@ -71,4 +71,4 @@ class CarService:
         return cars
     
     def find_all_cars(self) -> list[Car]:
-        return self.car_repository.find_all_cars()
+        return self.car_repository.find_all()

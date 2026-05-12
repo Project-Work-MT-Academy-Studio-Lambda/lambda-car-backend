@@ -37,6 +37,7 @@ class CommitService:
             id=uuid4(),
             code=cmd.code,
             description=cmd.description,
+            status=CommitStatus.BACKLOG.value,
         )
 
         self.commit_repository.save(commit)
@@ -51,13 +52,13 @@ class CommitService:
         if not trip:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
-        return self.commit_repository.list_by_trip_id(trip_id)
+        return self.commit_repository.find_by_trip_id(trip_id)
     
     def find_all_commits(self) -> list[Commit]:
-        return self.commit_repository.list_all()
+        return self.commit_repository.find_all()
     
     def find_backlog_commits(self) -> list[Commit]:
-        return self.commit_repository.list_by_status(CommitStatus.BACKLOG)
+        return self.commit_repository.find_by_status(CommitStatus.BACKLOG)
 
     def update_commit(
         self,

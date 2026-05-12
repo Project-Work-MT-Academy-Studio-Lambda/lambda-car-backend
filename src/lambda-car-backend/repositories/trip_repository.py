@@ -20,3 +20,6 @@ class TripRepository(Protocol):
 
     def get_active_trip_by_car_id(self, car_id: UUID) -> Trip | None:
         ...
+    
+    def find_all(self) -> list[Trip]:
+        ...

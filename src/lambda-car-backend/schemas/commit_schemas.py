@@ -4,7 +4,6 @@ from typing import List
 
 from ..domain.commit import Commit
 
-
 class CreateCommitRequest(BaseModel):
     code: str
     description: str
@@ -12,12 +11,13 @@ class CreateCommitRequest(BaseModel):
 class UpdateCommitRequest(BaseModel):
     code: str
     description: str
-
+    status: str
 
 class CommitResponse(BaseModel):
     id: UUID
     code: str
     description: str
+    status: str
 
     @classmethod
     def from_domain(cls, commit: Commit) -> "CommitResponse":
@@ -25,6 +25,7 @@ class CommitResponse(BaseModel):
             id=commit.id,
             code=commit.code,
             description=commit.description,
+            status=commit.status,
         )
 
 class ImportCommitItemRequest(BaseModel):

@@ -3,12 +3,10 @@ from pydantic import BaseModel, Field
 
 from ..domain.car import Car
 
-
 class MileageSchema(BaseModel):
     km_total: int = Field(..., ge=0)
     km_servicing: int = Field(..., ge=0)
     km_wheels: int = Field(..., ge=0)
-
 
 class FuelInfoSchema(BaseModel):
     type: str = Field(..., min_length=1)

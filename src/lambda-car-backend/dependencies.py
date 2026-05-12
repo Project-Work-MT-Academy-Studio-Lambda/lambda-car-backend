@@ -26,6 +26,10 @@ from .domain.user import CurrentUser
 
 from jwt.exceptions import ExpiredSignatureError
 
+from .services.operations.export_service import ExportService
+
+from .services.operations.exports.excel_writer import ExcelExportWriter
+
 _tables = DynamoDbTables()
 _password_hasher = ArgonPasswordHasher()
 _settings = load_settings()
@@ -127,4 +131,17 @@ def get_refueling_service() -> RefuelingService:
         refueling_repository=_refueling_repository,
         car_repository=_car_repository,
         receipt_photo_storage=_receipt_photo_storage
+    )
+
+_excel_writer = ExcelExportWriter()
+
+def get_export_service() -> ExportService:
+    
+    return ExportService(
+        user_repository=_user_repository,
+        car_repository=_car_repository,
+        trip_repository=_trip_repository,
+        refueling_repository=_refueling_repository,
+        commit_repository=_commit_repository,
+        excel_writer=_excel_writer,
     )

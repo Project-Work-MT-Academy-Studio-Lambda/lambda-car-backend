@@ -50,3 +50,7 @@ class DynamoDbTripRepository(TripRepository):
             return None
 
         return item_to_trip(items[0])
+    
+    def find_all(self) -> list[Trip]:
+        response = self.trip_table.scan()
+        return [item_to_trip(item) for item in response.get("Items", [])]

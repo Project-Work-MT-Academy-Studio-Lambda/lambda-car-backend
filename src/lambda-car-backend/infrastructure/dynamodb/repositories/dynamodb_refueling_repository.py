@@ -46,6 +46,6 @@ class DynamoDbRefuelingRepository(RefuelingRepository):
         response = self.refueling_table.query(**query_params)
         return [item_to_refueling(item) for item in response.get("Items", [])]
     
-    def list_all(self) -> list[Refueling]:
+    def find_all(self) -> list[Refueling]:
         response = self.refueling_table.scan()
         return [item_to_refueling(item) for item in response.get("Items", [])]
