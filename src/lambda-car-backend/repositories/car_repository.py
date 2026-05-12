@@ -17,3 +17,6 @@ class CarRepository(Protocol):
     
     def find_free_cars(self) -> list[Car]:
         ...
+
+    def find_all_cars(self) -> list[Car]:
+        ...

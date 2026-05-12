@@ -33,6 +33,11 @@ class DynamoDbCarRepository(CarRepository):
         )
         items = response.get("Items", [])
         return [item_to_car(item) for item in items]
+    
+    def find_all_cars(self) -> list[Car]:
+        response = self.car_table.scan()
+        items = response.get("Items", [])
+        return [item_to_car(item) for item in items]
 
     def save(self, car: Car) -> None:
         self.car_table.put_item(Item=car_to_item(car))
