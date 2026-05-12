@@ -14,7 +14,6 @@ class OpenTripCommand:
 @dataclass
 class CloseTripCommand:
     user_id: UUID
-    commit_id: UUID
     trip_id: UUID
     end_position: str
     end_date: datetime

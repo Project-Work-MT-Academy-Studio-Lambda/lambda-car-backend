@@ -82,3 +82,5 @@ class Constants:
     ACTIVE_TRIP_EXISTS = "There is already an active trip for this car"
 
     NO_ACTIVE_TRIP = "There is no active trip for this car"
+
+    END_KM_CANNOT_BE_LESS_THAN_START_KM = "End km cannot be less than start km"

@@ -96,6 +96,7 @@ class TripService:
         commit.trip_id = trip.id
         commit.status = CommitStatus.IN_PROGRESS
         car.status = CarStatus.IN_USE
+        self.commit_repository.save(commit)
         self.car_repository.save(car)
         self.trip_repository.save(trip)
         return trip
@@ -107,6 +108,7 @@ class TripService:
         self._check_not_active_trip_or_raise(trip.car_id)
         car = self._get_car_or_raise(trip.car_id)
         trip.close_trip(cmd.end_position, cmd.end_date, cmd.end_km)
+        self.commit_repository.close_commit_by_trip_id(trip.id)
         car.status = CarStatus.FREE
         self.car_repository.save(car)
         self.trip_repository.save(trip)

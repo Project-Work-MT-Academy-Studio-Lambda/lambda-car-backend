@@ -6,10 +6,13 @@ from ....repositories.trip_repository import TripRepository
 from ..mappers.trip_mapper import trip_to_item, item_to_trip
 from ....domain.enum.trip_status import TripStatus
 
+from ....logger import get_logger
+
 
 class DynamoDbTripRepository(TripRepository):
     def __init__(self, trip_table):
         self.trip_table = trip_table
+        self.logger = get_logger(__name__)
 
     def get_by_id(self, trip_id: UUID) -> Trip | None:
         response = self.trip_table.get_item(Key={"id": str(trip_id)})
@@ -44,6 +47,8 @@ class DynamoDbTripRepository(TripRepository):
             KeyConditionExpression=Key("car_id").eq(str(car_id)) & Key("status").eq(TripStatus.ACTIVE.value),
             Limit=1,
         )
+        self.logger.info(f"Found active trip for car {car_id}")
+        self.logger.info(f"Query response: {response}")
 
         items = response.get("Items", [])
         if not items:

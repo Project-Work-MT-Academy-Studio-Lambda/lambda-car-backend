@@ -23,3 +23,6 @@ class CommitRepository(Protocol):
     
     def find_by_status(self, status: str) -> list[Commit]:
         ...
+    
+    def close_commit_by_trip_id(self, trip_id: UUID) -> None:
+        ...

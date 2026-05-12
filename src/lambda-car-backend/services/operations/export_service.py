@@ -63,9 +63,9 @@ class ExportService:
                 km_total=car.mileage.km_total,
                 km_servicing=car.mileage.km_servicing,
                 km_wheels=car.mileage.km_wheels,
-                fuel_type=car.fuel_info.fuel_type,
-                fuel_level=car.fuel_info.fuel_level,
-                fuel_card=car.fuel_info.fuel_card,
+                fuel_type=car.fuel_info.type,
+                fuel_level=car.fuel_info.level,
+                fuel_card=car.fuel_info.card,
             )
             for car in cars
         ]

@@ -61,3 +61,9 @@ class DynamoDbCommitRepository(CommitRepository):
 
     def delete(self, commit_id: UUID) -> None:
         self.commit_table.delete_item(Key={"id": str(commit_id)})
+    
+    def close_commit_by_trip_id(self, trip_id: UUID):
+        commits = self.find_by_trip_id(trip_id)
+        for commit in commits:
+            commit.status = "closed"
+            self.save(commit)
