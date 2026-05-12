@@ -26,6 +26,11 @@ class RefuelingService:
         self.car_repository = car_repository
         self.receipt_photo_storage = receipt_photo_storage
         self.logger = get_logger(__name__)
+    
+    def _get_car_or_raise(self, car_id: UUID) -> None:
+        car = self.car_repository.get_by_id(car_id)
+        if not car:
+            raise ValueError(Constants.CAR_NOT_FOUND)
 
     def _get_refueling_or_raise(self, refueling_id: UUID, user_id: UUID, user_role: str) -> Refueling:
         refueling = self.refueling_repository.get_by_id(refueling_id, user_id, user_role)
@@ -70,12 +75,10 @@ class RefuelingService:
         refueling = self._get_refueling_or_raise(refueling_id, user_id, user_role)
         return refueling
 
-    def get_refuelings_for_car(self, car_id: UUID, user_id: UUID, user_role: str) -> list[Refueling]:
-        car = self.car_repository.get_by_id(car_id)
-        if not car:
-            raise ValueError(Constants.CAR_NOT_FOUND)
-
-        return self.refueling_repository.list_by_car_id(car_id, user_id, user_role)
+    def get_refuelings_for_car(self, car_id: UUID) -> list[Refueling]:
+        car = self._get_car_or_raise(car_id)
+        refuelings = self.refueling_repository.list_by_car_id(car_id)
+        return refuelings
 
     def update_refueling(
         self,

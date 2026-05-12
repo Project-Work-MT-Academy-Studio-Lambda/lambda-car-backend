@@ -34,6 +34,21 @@ router = APIRouter(prefix="/refuelings", tags=["refuelings"])
 
 logger = get_logger(__name__)
 
+@router.get("/car/{car_id}", response_model=list[RefuelingResponse], status_code=status.HTTP_200_OK)
+def list_refuelings(
+    car_id: UUID,
+    current_user: CurrentUser = Depends(require_user),
+    service: RefuelingService = Depends(get_refueling_service),
+):
+    logger.debug(f"User {current_user.id} is listing all refuelings")
+    try:
+        refuelings = service.get_refuelings_for_car(car_id=car_id)
+        logger.debug(f"Found {len(refuelings)} refuelings for car {car_id}")
+        return [RefuelingResponse.from_domain(refueling) for refueling in refuelings]
+    except ValueError as e:
+        logger.error(f"Error occurred while fetching refuelings: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @router.post("/", response_model=RefuelingResponse, status_code=status.HTTP_201_CREATED)
 async def create_refueling(
     car_id: UUID = Form(...),

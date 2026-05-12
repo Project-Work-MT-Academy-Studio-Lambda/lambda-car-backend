@@ -10,7 +10,7 @@ from ...domain.user import CurrentUser
 router = APIRouter(prefix="/commits", tags=["commits"])
 logger = get_logger(__name__)
 
-@router.get("/", response_model=list[CommitResponse], status_code=status.HTTP_200_OK)
+@router.get("/backlog", response_model=list[CommitResponse], status_code=status.HTTP_200_OK)
 def list_commits(
     current_user: CurrentUser = Depends(require_user),
     service: CommitService = Depends(get_commit_service),
