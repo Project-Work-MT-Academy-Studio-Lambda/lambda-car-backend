@@ -65,3 +65,10 @@ class CarService:
     def delete_car(self, car_id: UUID) -> None:
         self.get_car(car_id)
         self.car_repository.delete(car_id)
+
+    def get_active_cars(self) -> list[Car]:
+        cars = self.car_repository.find_free_cars()
+        return cars
+    
+    def find_all_cars(self) -> list[Car]:
+        return self.car_repository.find_all_cars()
