@@ -36,6 +36,7 @@ def open_trip(
     try:
         cmd = OpenTripCommand(
             user_id=current_user.id,
+            commit_id=payload.commit_id,
             car_id=payload.car_id,
             start_position=payload.start_position,
             start_date=payload.start_date,

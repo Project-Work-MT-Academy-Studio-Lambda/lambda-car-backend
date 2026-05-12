@@ -27,6 +27,29 @@ from ...domain.user import CurrentUser
 router = APIRouter(prefix="/admin/commits", tags=["admin-commits"])
 logger = get_logger(__name__)
 
+@router.get("/", response_model=list[CommitResponse], status_code=status.HTTP_200_OK)
+def list_commits(
+    current_user: CurrentUser = Depends(require_admin),
+    service: CommitService = Depends(get_commit_service),
+):
+    logger.debug(f"Admin {current_user.id} is listing all commits")
+    commits = service.find_all_commits()
+    logger.debug(f"Found {len(commits)} commits in the system")
+    return [CommitResponse.from_domain(commit) for commit in commits]
+
+@router.get("/backlog", response_model=list[CommitResponse], status_code=status.HTTP_200_OK)
+def list_backlog_commits(
+    current_user: CurrentUser = Depends(require_admin),
+    service: CommitService = Depends(get_commit_service),
+):
+    logger.debug(f"Admin {current_user.id} is listing backlog commits")
+    try:
+        commits = service.find_backlog_commits()
+        return [CommitResponse.from_domain(commit) for commit in commits]
+    except ValueError as e:
+        logger.error(f"Error occurred while fetching commits: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @router.post("/", response_model=CommitResponse, status_code=status.HTTP_201_CREATED)
 def create_commit(
     payload: CreateCommitRequest,

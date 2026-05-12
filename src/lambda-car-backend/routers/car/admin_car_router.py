@@ -24,6 +24,20 @@ def list_cars(
     logger.debug(f"Found {len(cars)} cars in the system")
     return [CarResponse.from_domain(car) for car in cars]
 
+@router.get("/active", response_model=list[CarResponse], status_code=status.HTTP_200_OK)
+def get_active_cars(
+    current_user: CurrentUser = Depends(require_admin),
+    service: CarService = Depends(get_car_service),
+):
+    logger.debug(f"User {current_user.id} is attempting to get the active cars")
+    try:
+        cars = service.get_active_cars()
+        logger.debug(f"Found {len(cars)} active cars")
+        return [CarResponse.from_domain(car) for car in cars]
+    except ValueError as e:
+        logger.error(f"Error occurred while fetching active car: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @router.post("/", response_model=CarResponse, status_code=status.HTTP_201_CREATED)
 def create_car(
     payload: CreateCarRequest,
@@ -98,17 +112,4 @@ def delete_car(
     try:
         service.delete_car(car_id)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-
-@router.get("/active", response_model=CarResponse)
-def get_active_car(
-    current_user: CurrentUser = Depends(require_admin),
-    service: CarService = Depends(get_car_service),
-):
-    logger.debug(f"User {current_user.id} is attempting to get the active car")
-    try:
-        car = service.get_active_car()
-        return CarResponse.from_domain(car)
-    except ValueError as e:
-        logger.error(f"Error occurred while fetching active car: {str(e)}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

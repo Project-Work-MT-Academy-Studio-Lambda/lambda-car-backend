@@ -11,6 +11,8 @@ from ..commands.commit_commands import (
     ImportCommitsCommand
 )
 
+from ..domain.enum.commit_status import CommitStatus
+
 class CommitService:
     def __init__(
         self,
@@ -50,6 +52,12 @@ class CommitService:
             raise ValueError(Constants.TRIP_NOT_FOUND)
 
         return self.commit_repository.list_by_trip_id(trip_id)
+    
+    def find_all_commits(self) -> list[Commit]:
+        return self.commit_repository.list_all()
+    
+    def find_backlog_commits(self) -> list[Commit]:
+        return self.commit_repository.list_by_status(CommitStatus.BACKLOG)
 
     def update_commit(
         self,

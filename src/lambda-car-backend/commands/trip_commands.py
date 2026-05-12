@@ -6,6 +6,7 @@ from datetime import datetime
 class OpenTripCommand:
     user_id: UUID
     car_id: UUID
+    commit_id: UUID
     start_position: str
     start_date: datetime
     start_km: int
@@ -13,6 +14,7 @@ class OpenTripCommand:
 @dataclass
 class CloseTripCommand:
     user_id: UUID
+    commit_id: UUID
     trip_id: UUID
     end_position: str
     end_date: datetime
@@ -23,6 +25,7 @@ class UpdateTripCommand:
     trip_id: UUID
     user_id: UUID
     car_id: UUID
+    commit_id: UUID
     start_position: str
     end_position: str
     start_date: datetime
@@ -39,3 +42,4 @@ class DeleteTripCommand:
 class GetCommitTripCommand:
     trip_id: UUID
     user_id: UUID
+    commit_id: UUID

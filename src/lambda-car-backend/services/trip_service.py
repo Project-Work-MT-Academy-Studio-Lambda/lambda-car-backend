@@ -11,6 +11,9 @@ from ..repositories.trip_repository import TripRepository
 from ..repositories.user_repository import UserRepository
 
 from ..constants import Constants
+from ..domain.enum.commit_status import CommitStatus
+from ..domain.enum.trip_status import TripStatus
+from ..domain.enum.car_status import CarStatus
 
 from ..commands.trip_commands import (
     OpenTripCommand,
@@ -81,6 +84,7 @@ class TripService:
         car = self._get_car_or_raise(cmd.car_id)
         user = self._get_user_or_raise(cmd.user_id)
         self._check_active_trip_or_raise(cmd.car_id)
+        commit = self._get_commit_or_raise(cmd.commit_id)
         trip = Trip(
             id=uuid4(),
             car_id=cmd.car_id,
@@ -89,6 +93,8 @@ class TripService:
             start_date=cmd.start_date,
             start_km=cmd.start_km
         )
+        commit.trip_id = trip.id
+        commit.status = CommitStatus.IN_PROGRESS
         car.status = CarStatus.IN_USE
         self.car_repository.save(car)
         self.trip_repository.save(trip)

@@ -38,6 +38,23 @@ class DynamoDbCommitRepository(CommitRepository):
             query_params["FilterExpression"] = Attr("user_id").eq(str(user_id))
         response = self.commit_table.query(**query_params)
         return [item_to_commit(item) for item in response.get("Items", [])]
+    
+    def find_all(self) -> list[Commit]:
+        response = self.commit_table.scan()
+        return [item_to_commit(item) for item in response.get("Items", [])]
+    
+    def find_by_status(self, status):
+        response = self.commit_table.scan(
+            FilterExpression=Attr("status").eq(status)
+        )
+        return [item_to_commit(item) for item in response.get("Items", [])]
+    
+    def find_by_trip_id(self, trip_id: UUID) -> list[Commit]:
+        response = self.commit_table.query(
+            IndexName="trip_id-index",
+            KeyConditionExpression=Key("trip_id").eq(str(trip_id)),
+        )
+        return [item_to_commit(item) for item in response.get("Items", [])]
 
     def save(self, commit: Commit) -> None:
         self.commit_table.put_item(Item=commit_to_item(commit))

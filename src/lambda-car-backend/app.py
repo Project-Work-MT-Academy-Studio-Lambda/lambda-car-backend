@@ -7,7 +7,9 @@ from .routers.auth.admin_auth_router import router as admin_auth_router
 
 from .routers.user.admin_user_router import router as admin_user_router
 from .routers.car.admin_car_router import router as admin_car_router
+from .routers.car.car_router import router as car_router
 from .routers.commit.admin_commit_router import router as admin_commit_router
+from .routers.commit.commit_router import router as commit_router
 
 from .routers.trip.trip_router import router as trip_router
 from .routers.refueling.refueling_router import router as refueling_router
@@ -26,7 +28,8 @@ app.include_router(admin_auth_router, prefix=settings.api_prefix)
 app.include_router(admin_user_router, prefix=settings.api_prefix)
 app.include_router(admin_car_router, prefix=settings.api_prefix)
 app.include_router(admin_commit_router, prefix=settings.api_prefix)
-
+app.include_router(commit_router, prefix=settings.api_prefix)
+app.include_router(car_router, prefix=settings.api_prefix)
 app.include_router(trip_router, prefix=settings.api_prefix)
 app.include_router(refueling_router, prefix=settings.api_prefix)
 
