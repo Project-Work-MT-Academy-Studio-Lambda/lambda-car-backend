@@ -60,6 +60,7 @@ class ExcelExportWriter:
             "Tipo carburante",
             "Livello carburante",
             "Carta carburante",
+            "CO2 per km",
         ])
 
         for row in rows:
@@ -72,6 +73,7 @@ class ExcelExportWriter:
                 row.fuel_type,
                 row.fuel_level,
                 row.fuel_card,
+                row.co2_per_km,
             ])
 
         self._autosize_columns(sheet)

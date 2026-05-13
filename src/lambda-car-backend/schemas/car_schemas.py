@@ -19,6 +19,7 @@ class CreateCarRequest(BaseModel):
     model: str | None = None
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
+    co2_per_km: float | None = None
 
 
 class UpdateCarRequest(BaseModel):
@@ -26,6 +27,7 @@ class UpdateCarRequest(BaseModel):
     model: str | None = None
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
+    co2_per_km: float | None = None
 
 
 class CarResponse(BaseModel):
@@ -34,6 +36,7 @@ class CarResponse(BaseModel):
     model: str | None
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
+    co2_per_km: float | None = None
 
     @classmethod
     def from_domain(cls, car: Car) -> "CarResponse":
@@ -51,4 +54,5 @@ class CarResponse(BaseModel):
                 level=car.fuel_info.level,
                 card=car.fuel_info.card,
             ),
+            co2_per_km=car.co2_per_km,
         )

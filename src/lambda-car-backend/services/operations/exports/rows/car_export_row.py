@@ -8,6 +8,7 @@ class CarExportRow:
     km_total: int
     km_servicing: int
     km_wheels: int
+    co2_per_km: float | None
     fuel_type: str
     fuel_level: int | None
     fuel_card: str | None

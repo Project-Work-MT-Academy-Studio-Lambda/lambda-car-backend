@@ -30,6 +30,7 @@ class CarService:
                 level=cmd.fuel_level,
                 card=cmd.fuel_card,
             ),
+            co2_per_km=cmd.co2_per_km,
         )
 
         self.car_repository.save(car)
@@ -60,6 +61,7 @@ class CarService:
             level=cmd.fuel_level,
             card=cmd.fuel_card,
         )
+        car.co2_per_km = cmd.co2_per_km
         self.logger.debug(f"Car with ID: {cmd.car_id} updated successfully. New plate: {car.plate}")
         self.car_repository.save(car)
         return car

@@ -3,6 +3,7 @@ from .exports.rows.car_export_row import CarExportRow
 from .exports.rows.commit_export_row import CommitExportRow
 from .exports.rows.trip_export_row import TripExportRow
 from .exports.rows.refueling_export_row import RefuelingExportRow
+from ...logger import get_logger
 
 
 class ExportService:
@@ -21,6 +22,7 @@ class ExportService:
         self.commit_repository = commit_repository
         self.refueling_repository = refueling_repository
         self.excel_writer = excel_writer
+        self.logger = get_logger(__name__)
 
     def export_data(self) -> bytes:
         refuelings = self.refueling_repository.find_all()
@@ -66,9 +68,13 @@ class ExportService:
                 fuel_type=car.fuel_info.type,
                 fuel_level=car.fuel_info.level,
                 fuel_card=car.fuel_info.card,
+                co2_per_km=car.co2_per_km,
             )
             for car in cars
         ]
+
+        self.logger.debug(f"Exporting {len(users)} users, {len(cars)} cars, {len(commits)} commits, {len(trips)} trips, and {len(refuelings)} refuelings.")
+        self.logger.debug(f"Car export rows: {car_rows}")
 
         commit_rows = [
             CommitExportRow(

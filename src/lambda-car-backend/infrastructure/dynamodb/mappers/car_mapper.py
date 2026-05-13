@@ -20,6 +20,7 @@ def car_to_item(car: Car) -> dict:
             "level": car.fuel_info.level,
             "card": car.fuel_info.card,
         },
+        "co2_per_km": car.co2_per_km,
     }
 
 
@@ -42,4 +43,5 @@ def item_to_car(item: dict) -> Car:
             level=fuel_item.get("level"),
             card=fuel_item.get("card"),
         ),
+        co2_per_km=item.get("co2_per_km"),
     )
