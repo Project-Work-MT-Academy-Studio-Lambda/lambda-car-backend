@@ -85,6 +85,7 @@ def update_car(
     current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),
 ):
+    logger.debug(f"Admin {current_user.id} is attempting to update car with ID: {car_id}")
     try:
         cmd = UpdateCarCommand(
             car_id=car_id,
@@ -98,8 +99,10 @@ def update_car(
             fuel_card=payload.fuel_info.card,
         )
         car = service.update_car(cmd)
+        logger.debug(f"Admin {current_user.id} successfully updated car with ID: {car_id}")
         return CarResponse.from_domain(car)
     except ValueError as e:
+        logger.error(f"Error updating car: {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 

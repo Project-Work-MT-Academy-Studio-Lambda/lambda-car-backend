@@ -3,11 +3,13 @@ from ..commands.car_commands import CreateCarCommand, UpdateCarCommand
 from ..constants import Constants
 from ..domain.car import Car, Mileage, FuelInfo
 from ..repositories.car_repository import CarRepository
+from ..logger import get_logger
 
 
 class CarService:
     def __init__(self, car_repository: CarRepository):
         self.car_repository = car_repository
+        self.logger = get_logger(__name__)
 
     def create_car(self, cmd: CreateCarCommand) -> Car:
         existing_car = self.car_repository.get_by_plate(cmd.plate)
@@ -41,11 +43,11 @@ class CarService:
 
     def update_car(self, cmd: UpdateCarCommand) -> Car:
         car = self.get_car(cmd.car_id)
-
+        self.logger.debug(f"Updating car with ID: {cmd.car_id}. Current plate: {car.plate}, New plate: {cmd.plate}")
         existing_car = self.car_repository.get_by_plate(cmd.plate)
         if existing_car is not None and existing_car.id != cmd.car_id:
+            self.logger.error(f"Cannot update car with ID: {cmd.car_id}. Plate {cmd.plate} is already in use by car with ID: {existing_car.id}")
             raise ValueError(Constants.CAR_ALREADY_EXISTS)
-
         car.plate = cmd.plate
         car.model = cmd.model
         car.mileage = Mileage(
@@ -58,7 +60,7 @@ class CarService:
             level=cmd.fuel_level,
             card=cmd.fuel_card,
         )
-
+        self.logger.debug(f"Car with ID: {cmd.car_id} updated successfully. New plate: {car.plate}")
         self.car_repository.save(car)
         return car
 

@@ -93,7 +93,8 @@ class ExportService:
                 commit.code
                 for commit in trip_commits
             )
-
+            start_date = trip.start_date.replace(tzinfo=None)
+            end_date = trip.end_date.replace(tzinfo=None) if trip.end_date else None
             trip_rows.append(
                 TripExportRow(
                     user_email=user.email if user else "",
@@ -101,8 +102,8 @@ class ExportService:
                     commits=commit_codes,
                     start_position=trip.start_position,
                     end_position=trip.end_position,
-                    start_date=trip.start_date,
-                    end_date=trip.end_date,
+                    start_date=start_date,
+                    end_date=end_date,
                     start_km=trip.start_km,
                     end_km=trip.end_km,
                     distance=trip.distance,
@@ -123,7 +124,7 @@ class ExportService:
                     liter_price=refueling.liter_price,
                     liters=refueling.liters,
                     total_price=refueling.liter_price * refueling.liters,
-                    date=refueling.date,
+                    date=refueling.date.replace(tzinfo=None),
                     receipt_photo=refueling.receipt_photo,
                 )
             )
