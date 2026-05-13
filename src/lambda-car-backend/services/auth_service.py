@@ -27,13 +27,6 @@ class AuthService:
 
         return self.token_service.create_token(str(user.id), user.role)
 
-    def login_admin(self, cmd: LoginCommand) -> str:
-        user = self._authenticate(cmd)
-        if user.role != Role.ADMIN.value:
-            raise ValueError(Constants.INVALID_CREDENTIALS)
-
-        return self.token_service.create_token(str(user.id), user.role)
-
     def _authenticate(self, cmd: LoginCommand):
         self.logger.debug(f"Authenticating user with email: {cmd.email}")
         user = self.user_repository.get_by_email(cmd.email)

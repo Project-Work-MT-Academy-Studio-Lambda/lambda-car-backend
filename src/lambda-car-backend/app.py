@@ -2,7 +2,6 @@ from fastapi import FastAPI
 
 from .settings import load_settings
 
-from .routers.auth.auth_router import router as auth_router
 from .routers.auth.admin_auth_router import router as admin_auth_router
 
 from .routers.user.admin_user_router import router as admin_user_router
@@ -24,7 +23,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(admin_auth_router, prefix=settings.api_prefix)
 
 app.include_router(admin_user_router, prefix=settings.api_prefix)

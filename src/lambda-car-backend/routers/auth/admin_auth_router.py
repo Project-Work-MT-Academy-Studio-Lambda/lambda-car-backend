@@ -23,12 +23,12 @@ def admin_login(
             email=payload.email,
             password=payload.password,
         )
-        access_token = service.login_admin(cmd)
-        logger.info(f"Admin login successful for email: {payload.email}")
+        access_token = service.login(cmd)
+        logger.info(f"Login successful for email: {payload.email}")
         return TokenResponse(access_token=access_token, token_type=Constants.BEARER)
 
     except ValueError as e:
-        logger.warning(f"Admin login failed for email {payload.email}: {str(e)}")
+        logger.warning(f"Login failed for email {payload.email}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=Constants.INVALID_CREDENTIALS,
