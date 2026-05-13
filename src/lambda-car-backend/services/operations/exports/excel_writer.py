@@ -138,7 +138,6 @@ class ExcelExportWriter:
             "Litri",
             "Totale",
             "Data",
-            "Foto ricevuta",
         ])
 
         for row in rows:
@@ -149,7 +148,6 @@ class ExcelExportWriter:
                 row.liters,
                 row.total_price,
                 row.date,
-                row.receipt_photo,
             ])
 
         self._autosize_columns(sheet)
