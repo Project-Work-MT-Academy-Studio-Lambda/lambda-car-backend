@@ -26,6 +26,7 @@ services:
       TRIPS_TABLE_NAME: trips
       REFUELINGS_TABLE_NAME: refuelings
       COMMITS_TABLE_NAME: commits
+      MAINTENANCES_TABLE_NAME: maintenances
 
       S3_ENDPOINT_URL: http://minio:9000
       RECEIPTS_BUCKET_NAME: lambdacar-receipts-local

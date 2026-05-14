@@ -4,6 +4,7 @@ from .infrastructure.dynamodb.repositories.dynamodb_car_repository import Dynamo
 from .infrastructure.dynamodb.repositories.dynamodb_trip_repository import DynamoDbTripRepository
 from .infrastructure.dynamodb.repositories.dynamodb_refueling_repository import DynamoDbRefuelingRepository
 from .infrastructure.dynamodb.repositories.dynamodb_commit_repository import DynamoDbCommitRepository
+from .infrastructure.dynamodb.repositories.dynamodb_maintenance_repository import DynamoDbMaintenanceRepository
 
 from .infrastructure.s3.s3_receipt_photo_storage import S3ReceiptPhotoStorage
 
@@ -12,6 +13,7 @@ from .services.trip_service import TripService
 from .services.car_service import CarService
 from .services.refueling_service import RefuelingService
 from .services.commit_service import CommitService
+from .services.maintenance_service import MaintenanceService
 from .services.auth_service import AuthService
 
 from .security.password_hasher import ArgonPasswordHasher
@@ -40,6 +42,7 @@ _car_repository = DynamoDbCarRepository(_tables.car_table)
 _trip_repository = DynamoDbTripRepository(_tables.trip_table)
 _refueling_repository = DynamoDbRefuelingRepository(_tables.refueling_table)
 _commit_repository = DynamoDbCommitRepository(_tables.commit_table)
+_maintenance_repository = DynamoDbMaintenanceRepository(_tables.maintenance_table)
 
 _receipt_photo_storage = S3ReceiptPhotoStorage()
 
@@ -124,6 +127,12 @@ def get_commit_service() -> CommitService:
     return CommitService(
         commit_repository=_commit_repository,
         trip_repository=_trip_repository,
+    )
+
+def get_maintenance_service() -> MaintenanceService:
+    return MaintenanceService(
+        maintenance_repository=_maintenance_repository,
+        car_repository=_car_repository,
     )
 
 def get_refueling_service() -> RefuelingService:

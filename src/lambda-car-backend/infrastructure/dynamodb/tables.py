@@ -12,3 +12,4 @@ class DynamoDbTables:
         self.car_table = resource.Table(config.cars_table)
         self.refueling_table = resource.Table(config.refuelings_table)
         self.commit_table = resource.Table(config.commits_table)
+        self.maintenance_table = resource.Table(config.maintenances_table)

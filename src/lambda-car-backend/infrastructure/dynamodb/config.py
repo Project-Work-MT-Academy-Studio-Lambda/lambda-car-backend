@@ -11,6 +11,7 @@ class DynamoDbConfig:
     cars_table: str
     refuelings_table: str
     commits_table: str
+    maintenances_table: str
 
 
 def load_dynamodb_config() -> DynamoDbConfig:
@@ -22,4 +23,5 @@ def load_dynamodb_config() -> DynamoDbConfig:
         cars_table=os.getenv("CARS_TABLE_NAME", "cars"),
         refuelings_table=os.getenv("REFUELINGS_TABLE_NAME", "refuelings"),
         commits_table=os.getenv("COMMITS_TABLE_NAME", "commits"),
+        maintenances_table=os.getenv("MAINTENANCES_TABLE_NAME", "maintenances"),
     )

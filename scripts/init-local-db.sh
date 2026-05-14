@@ -151,6 +151,24 @@ create_table_if_not_exists commits \
     }
   ]'
 
+create_table_if_not_exists maintenances \
+  --table-name maintenances \
+  --attribute-definitions \
+      AttributeName=id,AttributeType=S \
+      AttributeName=car_id,AttributeType=S \
+  --key-schema \
+      AttributeName=id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --global-secondary-indexes '[
+    {
+      "IndexName": "car_id-index",
+      "KeySchema": [
+        {"AttributeName": "car_id", "KeyType": "HASH"}
+      ],
+      "Projection": {"ProjectionType": "ALL"}
+    }
+  ]'
+
 echo "[UPSERT] Users"
 
 aws dynamodb put-item \

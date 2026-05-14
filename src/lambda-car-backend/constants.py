@@ -8,6 +8,10 @@ class Constants:
     FUEL_LEVEL_CANNOT_BE_NEGATIVE = "Fuel level cannot be negative"
     FUEL_CARD_CANNOT_BE_EMPTY = "Fuel card cannot be empty"
 
+    DATE_CANNOT_BE_IN_THE_FUTURE = "Date cannot be in the future"
+    KM_AT_MAINTENANCE_CANNOT_BE_NEGATIVE = "Km at maintenance cannot be negative"
+    COST_CANNOT_BE_NEGATIVE = "Cost cannot be negative"
+
     CODE_CANNOT_BE_EMPTY = "Code cannot be empty"
     DESCRIPTION_CANNOT_BE_EMPTY = "Description cannot be empty"
 
@@ -41,6 +45,7 @@ class Constants:
     COMMIT_NOT_FOUND = "Commit not found"
     REFUELING_NOT_FOUND = "Refueling not found"
     TRIP_NOT_FOUND = "Trip not found"
+    MAINTENANCE_NOT_FOUND = "Maintenance not found"
     USER_NOT_OWNER = "User is not the owner of the resource"
     REFUELING_NOT_FOUND = "Refueling not found"
 
@@ -84,3 +89,5 @@ class Constants:
     NO_ACTIVE_TRIP = "There is no active trip for this car"
 
     END_KM_CANNOT_BE_LESS_THAN_START_KM = "End km cannot be less than start km"
+
+    INTERNAL_SERVER_ERROR = "Internal server error: cannot perform {action_name} action"
