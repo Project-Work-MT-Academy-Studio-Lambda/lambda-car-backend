@@ -24,7 +24,6 @@ class UpdateTripCommand:
     trip_id: UUID
     user_id: UUID
     car_id: UUID
-    commit_id: UUID
     start_position: str
     end_position: str
     start_date: datetime

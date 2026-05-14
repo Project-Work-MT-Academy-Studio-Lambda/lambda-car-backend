@@ -33,8 +33,10 @@ services:
       RECEIPTS_PREFIX: receipts
 
     depends_on:
-      - dynamodb
-      - minio
+      db-init:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
 
     healthcheck:
       test:
@@ -55,6 +57,20 @@ services:
     ports:
       - "8001:8000"
     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+
+  db-init:
+    image: amazon/aws-cli:latest
+    entrypoint: ["/bin/sh", "/scripts/init-local-db.sh"]
+    volumes:
+      - ./scripts:/scripts:ro
+    environment:
+      ENDPOINT_URL: http://dynamodb:8000
+      AWS_ACCESS_KEY_ID: fake
+      AWS_SECRET_ACCESS_KEY: fakepassword
+      AWS_DEFAULT_REGION: eu-west-1
+    depends_on:
+      - dynamodb
+    restart: "no"
 
   minio:
     image: minio/minio:latest
