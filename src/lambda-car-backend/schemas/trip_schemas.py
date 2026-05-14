@@ -32,6 +32,7 @@ class CloseTripRequest(BaseModel):
 class TripResponse(BaseModel):
     id: UUID
     car_id: UUID
+    commit_id: UUID | None = None
     user_id: UUID
     start_position: str
     start_date: datetime
@@ -48,6 +49,7 @@ class TripResponse(BaseModel):
         return cls(
             id=trip.id,
             car_id=trip.car_id,
+            commit_id=trip.commit_id,
             user_id=trip.user_id,
             start_position=trip.start_position,
             start_date=trip.start_date,

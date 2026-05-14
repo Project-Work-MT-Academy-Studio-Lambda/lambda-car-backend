@@ -55,10 +55,14 @@ class TestTripRouter:
             "start_date": trip.start_date.isoformat(),
             "start_km": 45000,
         }
-        assert client.post("/api/v1/lambdacar/trips/", json=payload).status_code == 201
+        open_response = client.post("/api/v1/lambdacar/trips/", json=payload)
+        assert open_response.status_code == 201
+        assert open_response.json()["commit_id"] == str(trip.commit_id)
         assert service.opened.car_id == CAR_ID
 
-        assert client.get("/api/v1/lambdacar/trips/").status_code == 200
+        list_response = client.get("/api/v1/lambdacar/trips/")
+        assert list_response.status_code == 200
+        assert list_response.json()[0]["commit_id"] == str(trip.commit_id)
         assert client.get(f"/api/v1/lambdacar/trips/{TRIP_ID}").status_code == 200
 
         update_payload = {

@@ -89,6 +89,7 @@ class TripService:
             id=uuid4(),
             car_id=cmd.car_id,
             user_id=cmd.user_id,
+            commit_id=cmd.commit_id,
             start_position=cmd.start_position,
             start_date=cmd.start_date,
             start_km=cmd.start_km
@@ -145,9 +146,9 @@ class TripService:
     
     def delete_trip(self, cmd: DeleteTripCommand) -> None:
         user = self._get_user_or_raise(cmd.user_id)
-        car = self._get_car_or_raise(cmd.user_id)
         trip = self.get_trip(cmd.trip_id)
         self._check_user_owns_trip_or_raise(trip=trip, user_id=cmd.user_id)
+        car = self._get_car_or_raise(trip.car_id)
         car.status = CarStatus.FREE
         self.car_repository.save(car)
         self.trip_repository.delete(cmd.trip_id)

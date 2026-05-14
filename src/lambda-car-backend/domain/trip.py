@@ -12,6 +12,7 @@ class Trip:
     start_position: str
     start_date: datetime
     start_km: int
+    commit_id: UUID | None = None
     status: TripStatus = TripStatus.ACTIVE
     end_position: str | None = None
     end_date: datetime | None = None

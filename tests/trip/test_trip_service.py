@@ -70,6 +70,7 @@ class TestTripService:
 
         assert trip.car_id == CAR_ID
         assert trip.user_id == USER_ID
+        assert trip.commit_id == COMMIT_ID
 
     def test_get_trips_for_user_returns_repository_items(self, trip_factory, user_factory, car_factory, commit_factory):
         service_module = app_module("services.trip_service")
@@ -83,3 +84,20 @@ class TestTripService:
 
         assert service.get_trip(TRIP_ID) == trip
         assert service.get_trips_for_user(USER_ID) == [trip]
+
+    def test_delete_trip_frees_trip_car(self, trip_factory, user_factory, car_factory, commit_factory):
+        service_module = app_module("services.trip_service")
+        command_module = app_module("commands.trip_commands")
+        trip = trip_factory()
+        car = car_factory()
+        service = service_module.TripService(
+            trip_repository=FakeTripRepository(trip=trip),
+            user_repository=FakeRepository(user_factory()),
+            car_repository=FakeRepository(car),
+            commit_repository=FakeRepository(commit_factory()),
+        )
+
+        service.delete_trip(command_module.DeleteTripCommand(trip_id=TRIP_ID, user_id=USER_ID))
+
+        assert service.car_repository.saved.id == CAR_ID
+        assert service.trip_repository.deleted_id == TRIP_ID

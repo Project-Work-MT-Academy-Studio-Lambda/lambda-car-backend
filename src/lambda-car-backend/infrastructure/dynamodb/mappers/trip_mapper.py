@@ -7,6 +7,7 @@ def trip_to_item(trip: Trip) -> dict:
     return {
         'id': str(trip.id),
         'car_id': str(trip.car_id),
+        'commit_id': str(trip.commit_id) if trip.commit_id else None,
         'user_id': str(trip.user_id),
         'start_position': trip.start_position,
         'start_date': trip.start_date.isoformat(),
@@ -21,6 +22,7 @@ def item_to_trip(item: dict) -> Trip:
     return Trip(
         id=UUID(item['id']),
         car_id=UUID(item['car_id']),
+        commit_id=UUID(item['commit_id']) if item.get('commit_id') else None,
         user_id=UUID(item['user_id']),
         start_position=item['start_position'],
         start_date=datetime.fromisoformat(item['start_date']),
@@ -30,4 +32,3 @@ def item_to_trip(item: dict) -> Trip:
         end_km=item.get('end_km'),
         status=TripStatus(item.get("status", TripStatus.ACTIVE.value)),
     )
-
