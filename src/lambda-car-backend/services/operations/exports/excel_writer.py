@@ -8,6 +8,7 @@ from .rows.car_export_row import CarExportRow
 from .rows.commit_export_row import CommitExportRow
 from .rows.trip_export_row import TripExportRow
 from .rows.refueling_export_row import RefuelingExportRow
+from .rows.maintenance_export_row import MaintenanceExportRow
 
 
 class ExcelExportWriter:
@@ -18,6 +19,7 @@ class ExcelExportWriter:
         commits: list[CommitExportRow],
         trips: list[TripExportRow],
         refuelings: list[RefuelingExportRow],
+        maintenances: list[MaintenanceExportRow]
     ) -> bytes:
         workbook = Workbook()
 
@@ -29,6 +31,7 @@ class ExcelExportWriter:
         self._write_commits(workbook, commits)
         self._write_trips(workbook, trips)
         self._write_refuelings(workbook, refuelings)
+        self._write_maintenances(workbook, maintenances)
 
         output = BytesIO()
         workbook.save(output)
@@ -50,7 +53,7 @@ class ExcelExportWriter:
         self._autosize_columns(sheet)
 
     def _write_cars(self, workbook: Workbook, rows: list[CarExportRow]) -> None:
-        sheet = workbook.create_sheet("Cars")
+        sheet = workbook.create_sheet("Veicoli")
         self._append_header(sheet, [
             "Targa",
             "Modello",
@@ -79,7 +82,7 @@ class ExcelExportWriter:
         self._autosize_columns(sheet)
 
     def _write_commits(self, workbook: Workbook, rows: list[CommitExportRow]) -> None:
-        sheet = workbook.create_sheet("Commits")
+        sheet = workbook.create_sheet("Commesse")
         self._append_header(sheet, ["Codice", "Descrizione"])
 
         for row in rows:
@@ -91,7 +94,7 @@ class ExcelExportWriter:
         self._autosize_columns(sheet)
 
     def _write_trips(self, workbook: Workbook, rows: list[TripExportRow]) -> None:
-        sheet = workbook.create_sheet("Trips")
+        sheet = workbook.create_sheet("Viaggi")
         self._append_header(sheet, [
             "Utente",
             "Auto",
@@ -130,7 +133,7 @@ class ExcelExportWriter:
         workbook: Workbook,
         rows: list[RefuelingExportRow],
     ) -> None:
-        sheet = workbook.create_sheet("Refuelings")
+        sheet = workbook.create_sheet("Rifornimenti")
         self._append_header(sheet, [
             "Auto",
             "Carta carburante",
@@ -148,6 +151,33 @@ class ExcelExportWriter:
                 row.liters,
                 row.total_price,
                 row.date,
+            ])
+
+        self._autosize_columns(sheet)
+    
+    def _write_maintenances(
+        self,
+        workbook: Workbook,
+        rows: list[MaintenanceExportRow]
+    ) -> None:
+        sheet = workbook.create_sheet("Manutenzioni")
+        self._append_header(sheet, [
+            "Auto",
+            "Descrizione",
+            "Data",
+            "Km alla manutenzione",
+            "Costo intervento",
+            "Tipo intervento",
+        ])
+
+        for row in rows:
+            sheet.append([
+                row.car_plate,
+                row.description,
+                row.date,
+                row.km_at_maintenance,
+                row.cost,
+                row.type,
             ])
 
         self._autosize_columns(sheet)
