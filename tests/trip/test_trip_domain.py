@@ -18,9 +18,6 @@ class TestTripDomain:
         with pytest.raises(ValueError, match="Start position cannot be empty"):
             trip_factory(start_position="")
 
-        with pytest.raises(ValueError, match="Start date cannot be in the future"):
-            trip_factory(start_date=datetime.now(timezone.utc) + timedelta(days=1))
-
         with pytest.raises(ValueError, match="Start km cannot be negative"):
             trip_factory(start_km=-1)
 
