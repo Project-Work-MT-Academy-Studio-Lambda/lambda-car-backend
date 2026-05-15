@@ -23,8 +23,6 @@ class Trip:
         TOLLERANCE = timedelta(minutes=5)
         if not self.start_position:
             raise ValueError(Constants.START_POSITION_CANNOT_BE_EMPTY)
-        if self.start_date > now + TOLLERANCE:
-            raise ValueError(Constants.START_DATE_CANNOT_BE_IN_THE_FUTURE)
         if self.start_km < 0:
             raise ValueError(Constants.START_KM_CANNOT_BE_NEGATIVE)
 

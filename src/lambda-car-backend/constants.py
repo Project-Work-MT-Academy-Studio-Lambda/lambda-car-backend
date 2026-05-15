@@ -5,6 +5,7 @@ class Constants:
     PLATE_MUST_BE_7_CHARACTERS = "Plate must be 7 characters (got {length})"
     INVALID_PLATE_FORMAT = "Invalid plate format: {plate}"
     KM_CANNOT_BE_NEGATIVE = "Km cannot be negative"
+    END_KM_CANNOT_BE_NEGATIVE="End Km cannot be negative"
     FUEL_LEVEL_CANNOT_BE_NEGATIVE = "Fuel level cannot be negative"
     FUEL_CARD_CANNOT_BE_EMPTY = "Fuel card cannot be empty"
 
@@ -25,6 +26,7 @@ class Constants:
     START_DATE_CANNOT_BE_IN_THE_FUTURE = "Start date cannot be in the future"
     END_DATE_CANNOT_BE_IN_THE_FUTURE = "End date cannot be in the future"
     START_KM_CANNOT_BE_NEGATIVE = "Start km cannot be negative"
+    END_DATE_CANNOT_BE_BEFORE_START_DATE="End date cannot be before start date"
 
     KM_TOTAL_CANNOT_BE_NEGATIVE = "Total km cannot be negative"
     KM_SERVICING_CANNOT_BE_NEGATIVE = "Servicing km cannot be negative"
@@ -35,7 +37,6 @@ class Constants:
     PASSWORD_CANNOT_BE_EMPTY = "Password cannot be empty"
     HASHED_PASSWORD_CANNOT_BE_EMPTY = "Hashed password cannot be empty"
     INVALID_ROLE = "Invalid role"
-
     EMAIL_ALREADY_EXISTS = "Email already exists"
     EMAIL_ALREADY_USE = "Email already in use"
     USER_NOT_FOUND = "User not found"
