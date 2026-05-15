@@ -4,6 +4,7 @@ from fastapi.responses import Response
 from ...logger import get_logger
 from ...dependencies import require_admin, get_export_service
 from ...services.operations.export_service import ExportService
+from datetime import datetime
 
 router = APIRouter(
     prefix="/admin/export/excel",
@@ -22,12 +23,13 @@ def export_data_to_excel(
 
     try:
         excel_bytes = service.export_data()
+        filename: str = f"lambdacar_data_export_{datetime.now():%Y-%m-%d_%H-%M-%S}.xlsx"
 
         return Response(
             content=excel_bytes,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={
-                "Content-Disposition": 'attachment; filename="lambdacar_export.xlsx"'
+                "Content-Disposition": f'attachment; filename={filename}'
             },
         )
 

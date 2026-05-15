@@ -152,5 +152,6 @@ def get_export_service() -> ExportService:
         trip_repository=_trip_repository,
         refueling_repository=_refueling_repository,
         commit_repository=_commit_repository,
+        maintenance_repository=_maintenance_repository,
         excel_writer=_excel_writer,
     )

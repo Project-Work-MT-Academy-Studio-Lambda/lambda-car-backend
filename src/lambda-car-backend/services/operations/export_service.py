@@ -3,25 +3,39 @@ from .exports.rows.car_export_row import CarExportRow
 from .exports.rows.commit_export_row import CommitExportRow
 from .exports.rows.trip_export_row import TripExportRow
 from .exports.rows.refueling_export_row import RefuelingExportRow
+from .exports.rows.maintenance_export_row import MaintenanceExportRow
+
+from ...repositories.maintenance_repository import MaintenanceRepository
+from ...repositories.car_repository import CarRepository
+from ...repositories.commit_repository import CommitRepository
+from ...repositories.refueling_repository import RefuelingRepository
+from ...repositories.trip_repository import TripRepository
+from ...repositories.user_repository import UserRepository
+
+from .exports.excel_writer import ExcelExportWriter
+
 from ...logger import get_logger
 
 
 class ExportService:
     def __init__(
         self,
-        user_repository,
-        car_repository,
-        trip_repository,
-        commit_repository,
-        refueling_repository,
-        excel_writer,
+        user_repository: UserRepository,
+        car_repository: CarRepository,
+        trip_repository: TripRepository,
+        commit_repository: CommitRepository,
+        refueling_repository: RefuelingRepository,
+        maintenance_repository: MaintenanceRepository,
+        excel_writer: ExcelExportWriter,
     ):
         self.user_repository = user_repository
         self.car_repository = car_repository
         self.trip_repository = trip_repository
         self.commit_repository = commit_repository
         self.refueling_repository = refueling_repository
+        self.maintenance_repository = maintenance_repository
         self.excel_writer = excel_writer
+
         self.logger = get_logger(__name__)
 
     def export_data(self) -> bytes:
@@ -30,6 +44,7 @@ class ExportService:
         commits = self.commit_repository.find_all()
         trips = self.trip_repository.find_all()
         users = self.user_repository.find_all()
+        maintenances = self.maintenance_repository.find_all()
 
         users_by_id = {
             user.id: user
@@ -135,10 +150,27 @@ class ExportService:
                 )
             )
 
+        maintenance_rows = []
+
+        for maintenance in maintenances:
+            car = cars_by_id.get(maintenance.car_id)
+
+            maintenance_rows.append(
+                MaintenanceExportRow(
+                    car_plate=car.plate,
+                    description=maintenance.description,
+                    date=maintenance.date.replace(tzinfo=None),
+                    km_at_maintenance=maintenance.km_at_maintenance,
+                    cost=maintenance.cost,
+                    type=maintenance.type.value
+                )
+            )
+
         return self.excel_writer.write(
             users=user_rows,
             cars=car_rows,
             commits=commit_rows,
             trips=trip_rows,
             refuelings=refueling_rows,
+            maintenances=maintenance_rows,
         )
