@@ -25,6 +25,9 @@ class FakeTripRepository:
     def list_by_user_id(self, user_id):
         return [self.trip] if self.trip and self.trip.user_id == user_id else []
 
+    def find_all(self):
+        return [self.trip] if self.trip else []
+
     def delete(self, trip_id):
         self.deleted_id = trip_id
 
@@ -84,6 +87,7 @@ class TestTripService:
 
         assert service.get_trip(TRIP_ID) == trip
         assert service.get_trips_for_user(USER_ID) == [trip]
+        assert service.find_all_trips() == [trip]
 
     def test_delete_trip_frees_trip_car(self, trip_factory, user_factory, car_factory, commit_factory):
         service_module = app_module("services.trip_service")

@@ -45,6 +45,7 @@ class TestCarRouter:
         service = FakeCarService(car_factory())
         client = self._client(api_client_factory, service)
 
+        assert client.get("/api/v1/lambdacar/admin/cars").status_code == 200
         assert client.get("/api/v1/lambdacar/admin/cars/").status_code == 200
         assert client.get("/api/v1/lambdacar/admin/cars/active").status_code == 200
         assert client.get(f"/api/v1/lambdacar/admin/cars/{CAR_ID}").status_code == 200

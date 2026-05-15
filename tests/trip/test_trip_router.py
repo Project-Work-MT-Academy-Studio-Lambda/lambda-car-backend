@@ -16,6 +16,9 @@ class FakeTripService:
     def get_trips_for_user(self, user_id):
         return [self.trip]
 
+    def find_all_trips(self):
+        return [self.trip]
+
     def get_trip(self, trip_id):
         return self.trip
 
@@ -39,6 +42,7 @@ class TestTripRouter:
         return api_client_factory(
             {
                 dependencies.require_user: lambda: CurrentUser(id=str(USER_ID), role=Role.USER),
+                dependencies.require_admin: lambda: CurrentUser(id=str(USER_ID), role=Role.ADMIN),
                 dependencies.get_trip_service: lambda: service,
             }
         )
@@ -63,6 +67,9 @@ class TestTripRouter:
         list_response = client.get("/api/v1/lambdacar/trips/")
         assert list_response.status_code == 200
         assert list_response.json()[0]["commit_id"] == str(trip.commit_id)
+        admin_list_response = client.get("/api/v1/lambdacar/admin/trips/")
+        assert admin_list_response.status_code == 200
+        assert admin_list_response.json()[0]["user_id"] == str(trip.user_id)
         assert client.get(f"/api/v1/lambdacar/trips/{TRIP_ID}").status_code == 200
 
         update_payload = {

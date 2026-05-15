@@ -12,6 +12,7 @@ from .routers.commit.commit_router import router as commit_router
 from .routers.maintenance.admin_maintenance_router import router as admin_maintenance_router
 
 from .routers.trip.trip_router import router as trip_router
+from .routers.trip.admin_trip_router import router as admin_trip_router
 from .routers.refueling.refueling_router import router as refueling_router
 
 from .routers.operations.admin_excel_router import router as admin_excel_router
@@ -32,6 +33,7 @@ app.include_router(admin_commit_router, prefix=settings.api_prefix)
 app.include_router(admin_maintenance_router, prefix=settings.api_prefix)
 app.include_router(commit_router, prefix=settings.api_prefix)
 app.include_router(car_router, prefix=settings.api_prefix)
+app.include_router(admin_trip_router, prefix=settings.api_prefix)
 app.include_router(trip_router, prefix=settings.api_prefix)
 app.include_router(refueling_router, prefix=settings.api_prefix)
 app.include_router(admin_excel_router, prefix=settings.api_prefix)

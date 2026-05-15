@@ -14,7 +14,8 @@ from ...domain.user import CurrentUser
 router = APIRouter(prefix="/admin/cars", tags=["admin-cars"])
 logger = get_logger(__name__)
 
-@router.get("/", response_model=list[CarResponse], status_code=status.HTTP_200_OK)
+@router.get("", response_model=list[CarResponse], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=list[CarResponse], status_code=status.HTTP_200_OK, include_in_schema=False)
 def list_cars(
     current_user: CurrentUser = Depends(require_admin),
     service: CarService = Depends(get_car_service),

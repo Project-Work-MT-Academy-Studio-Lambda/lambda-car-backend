@@ -172,3 +172,6 @@ class TripService:
     def get_trips_for_user(self, user_id: UUID) -> list[Trip]:
         user = self._get_user_or_raise(user_id)
         return self.trip_repository.list_by_user_id(user_id)
+
+    def find_all_trips(self) -> list[Trip]:
+        return self.trip_repository.find_all()

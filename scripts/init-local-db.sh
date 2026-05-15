@@ -12,18 +12,21 @@ ADMIN_ID="11111111-1111-1111-1111-111111111111"
 USER_ID="22222222-2222-2222-2222-222222222222"
 USER_2_ID="22222222-2222-2222-2222-222222222223"
 USER_3_ID="22222222-2222-2222-2222-222222222224"
+USER_4_ID="22222222-2222-2222-2222-222222222225"
 
 CAR_1_ID="33333333-3333-3333-3333-333333333333"
 CAR_2_ID="44444444-4444-4444-4444-444444444444"
 CAR_3_ID="33333333-3333-3333-3333-333333333334"
 CAR_4_ID="33333333-3333-3333-3333-333333333335"
 CAR_5_ID="33333333-3333-3333-3333-333333333336"
+CAR_6_ID="33333333-3333-3333-3333-333333333337"
 
 TRIP_1_ID="55555555-5555-5555-5555-555555555555"
 TRIP_2_ID="66666666-6666-6666-6666-666666666666"
 TRIP_3_ID="55555555-5555-5555-5555-555555555556"
 TRIP_4_ID="55555555-5555-5555-5555-555555555557"
 TRIP_5_ID="55555555-5555-5555-5555-555555555558"
+TRIP_6_ID="55555555-5555-5555-5555-555555555559"
 
 COMMIT_1_ID="77777777-7777-7777-7777-777777777777"
 COMMIT_2_ID="88888888-8888-8888-8888-888888888888"
@@ -32,26 +35,29 @@ COMMIT_4_ID="77777777-7777-7777-7777-777777777778"
 COMMIT_5_ID="77777777-7777-7777-7777-777777777779"
 COMMIT_6_ID="77777777-7777-7777-7777-777777777780"
 COMMIT_7_ID="77777777-7777-7777-7777-777777777781"
+COMMIT_8_ID="77777777-7777-7777-7777-777777777782"
 
 REFUELING_1_ID="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 REFUELING_2_ID="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
 REFUELING_3_ID="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab"
 REFUELING_4_ID="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaac"
 REFUELING_5_ID="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaad"
+REFUELING_6_ID="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaae"
 
 MAINTENANCE_1_ID="dddddddd-dddd-dddd-dddd-dddddddddddd"
 MAINTENANCE_2_ID="eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
 MAINTENANCE_3_ID="ffffffff-ffff-ffff-ffff-ffffffffffff"
 MAINTENANCE_4_ID="dddddddd-dddd-dddd-dddd-ddddddddddde"
 MAINTENANCE_5_ID="dddddddd-dddd-dddd-dddd-dddddddddddf"
+MAINTENANCE_6_ID="dddddddd-dddd-dddd-dddd-dddddddddde0"
 
 ADMIN_EMAIL="admin@test.com"
 USER_EMAIL="user@test.com"
 USER_2_EMAIL="giulia.bianchi@test.com"
 USER_3_EMAIL="luca.verdi@test.com"
+USER_4_EMAIL="elena.neri@test.com"
 
 ADMIN_HASH='$argon2id$v=19$m=65536,t=3,p=4$r6WdjH6rFR/wl38nBO5Blg$+OJHw767tnYiXqD86x5rCPT5EGDCRUsJgLAzRrU/BjM'
-USER_HASH='$argon2id$v=19$m=65536,t=3,p=4$r6WdjH6rFR/wl38nBO5Blg$+OJHw767tnYiXqD86x5rCPT5EGDCRUsJgLAzRrU/BjM'
 
 echo "[WAIT] Waiting for DynamoDB at $ENDPOINT_URL"
 until aws dynamodb list-tables --endpoint-url "$ENDPOINT_URL" >/dev/null 2>&1; do
@@ -213,35 +219,46 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name users \
   --item "{
-    \"id\": {\"S\": \"$USER_ID\"},
-    \"name\": {\"S\": \"Mario Rossi\"},
-    \"email\": {\"S\": \"$USER_EMAIL\"},
-    \"hashed_password\": {\"S\": \"$USER_HASH\"},
-    \"role\": {\"S\": \"USER\"}
-  }" \
+	    \"id\": {\"S\": \"$USER_ID\"},
+	    \"name\": {\"S\": \"Mario Rossi\"},
+	    \"email\": {\"S\": \"$USER_EMAIL\"},
+	    \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
+	    \"role\": {\"S\": \"USER\"}
+	  }" \
   --endpoint-url "$ENDPOINT_URL"
 
 aws dynamodb put-item \
   --table-name users \
   --item "{
-    \"id\": {\"S\": \"$USER_2_ID\"},
-    \"name\": {\"S\": \"Giulia Bianchi\"},
-    \"email\": {\"S\": \"$USER_2_EMAIL\"},
-    \"hashed_password\": {\"S\": \"$USER_HASH\"},
-    \"role\": {\"S\": \"USER\"}
-  }" \
+	    \"id\": {\"S\": \"$USER_2_ID\"},
+	    \"name\": {\"S\": \"Giulia Bianchi\"},
+	    \"email\": {\"S\": \"$USER_2_EMAIL\"},
+	    \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
+	    \"role\": {\"S\": \"USER\"}
+	  }" \
   --endpoint-url "$ENDPOINT_URL"
 
 aws dynamodb put-item \
   --table-name users \
   --item "{
-    \"id\": {\"S\": \"$USER_3_ID\"},
-    \"name\": {\"S\": \"Luca Verdi\"},
-    \"email\": {\"S\": \"$USER_3_EMAIL\"},
-    \"hashed_password\": {\"S\": \"$USER_HASH\"},
-    \"role\": {\"S\": \"USER\"}
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	    \"id\": {\"S\": \"$USER_3_ID\"},
+	    \"name\": {\"S\": \"Luca Verdi\"},
+	    \"email\": {\"S\": \"$USER_3_EMAIL\"},
+	    \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
+	    \"role\": {\"S\": \"USER\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name users \
+  --item "{
+	    \"id\": {\"S\": \"$USER_4_ID\"},
+	    \"name\": {\"S\": \"Elena Neri\"},
+	    \"email\": {\"S\": \"$USER_4_EMAIL\"},
+	    \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
+	    \"role\": {\"S\": \"USER\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 echo "[UPSERT] Cars"
 
@@ -255,7 +272,7 @@ aws dynamodb put-item \
     \"status\": {\"S\": \"FREE\"},
     \"mileage\": {
       \"M\": {
-        \"km_total\": {\"N\": \"45000\"},
+        \"km_total\": {\"N\": \"45225\"},
         \"km_servicing\": {\"N\": \"50000\"},
         \"km_wheels\": {\"N\": \"60000\"}
       }
@@ -267,8 +284,33 @@ aws dynamodb put-item \
         \"card\": {\"S\": \"CARD-001\"}
       }
     }
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name cars \
+  --item "{
+	    \"id\": {\"S\": \"$CAR_6_ID\"},
+	    \"plate\": {\"S\": \"UV678WX\"},
+	    \"model\": {\"S\": \"Volkswagen Golf\"},
+	    \"co2_per_km\": {\"N\": \"104.7\"},
+	    \"status\": {\"S\": \"FREE\"},
+	    \"mileage\": {
+	      \"M\": {
+	        \"km_total\": {\"N\": \"38900\"},
+	        \"km_servicing\": {\"N\": \"45000\"},
+	        \"km_wheels\": {\"N\": \"52000\"}
+	      }
+	    },
+	    \"fuel_info\": {
+	      \"M\": {
+	        \"type\": {\"S\": \"DIESEL\"},
+	        \"level\": {\"N\": \"82\"},
+	        \"card\": {\"S\": \"CARD-006\"}
+	      }
+	    }
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 aws dynamodb put-item \
   --table-name cars \
@@ -305,7 +347,7 @@ aws dynamodb put-item \
     \"status\": {\"S\": \"FREE\"},
     \"mileage\": {
       \"M\": {
-        \"km_total\": {\"N\": \"78200\"},
+        \"km_total\": {\"N\": \"78310\"},
         \"km_servicing\": {\"N\": \"85000\"},
         \"km_wheels\": {\"N\": \"90000\"}
       }
@@ -375,9 +417,10 @@ echo "[UPSERT] Trips"
 aws dynamodb put-item \
   --table-name trips \
   --item "{
-    \"id\": {\"S\": \"$TRIP_1_ID\"},
-    \"car_id\": {\"S\": \"$CAR_1_ID\"},
-    \"user_id\": {\"S\": \"$USER_ID\"},
+	    \"id\": {\"S\": \"$TRIP_1_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_1_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_1_ID\"},
+	    \"user_id\": {\"S\": \"$USER_ID\"},
     \"start_position\": {\"S\": \"Roma\"},
     \"end_position\": {\"S\": \"Napoli\"},
     \"start_date\": {\"S\": \"2026-05-10T08:00:00+00:00\"},
@@ -391,9 +434,10 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name trips \
   --item "{
-    \"id\": {\"S\": \"$TRIP_2_ID\"},
-    \"car_id\": {\"S\": \"$CAR_2_ID\"},
-    \"user_id\": {\"S\": \"$USER_ID\"},
+	    \"id\": {\"S\": \"$TRIP_2_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_2_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_3_ID\"},
+	    \"user_id\": {\"S\": \"$USER_ID\"},
     \"start_position\": {\"S\": \"Milano\"},
     \"start_date\": {\"S\": \"2026-05-12T09:00:00+00:00\"},
     \"start_km\": {\"N\": \"23000\"},
@@ -404,9 +448,10 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name trips \
   --item "{
-    \"id\": {\"S\": \"$TRIP_3_ID\"},
-    \"car_id\": {\"S\": \"$CAR_3_ID\"},
-    \"user_id\": {\"S\": \"$USER_2_ID\"},
+	    \"id\": {\"S\": \"$TRIP_3_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_3_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_4_ID\"},
+	    \"user_id\": {\"S\": \"$USER_2_ID\"},
     \"start_position\": {\"S\": \"Torino\"},
     \"end_position\": {\"S\": \"Genova\"},
     \"start_date\": {\"S\": \"2026-05-07T07:45:00+00:00\"},
@@ -420,9 +465,10 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name trips \
   --item "{
-    \"id\": {\"S\": \"$TRIP_4_ID\"},
-    \"car_id\": {\"S\": \"$CAR_4_ID\"},
-    \"user_id\": {\"S\": \"$USER_3_ID\"},
+	    \"id\": {\"S\": \"$TRIP_4_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_4_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_5_ID\"},
+	    \"user_id\": {\"S\": \"$USER_3_ID\"},
     \"start_position\": {\"S\": \"Bologna\"},
     \"start_date\": {\"S\": \"2026-05-13T06:30:00+00:00\"},
     \"start_km\": {\"N\": \"15600\"},
@@ -433,9 +479,10 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name trips \
   --item "{
-    \"id\": {\"S\": \"$TRIP_5_ID\"},
-    \"car_id\": {\"S\": \"$CAR_5_ID\"},
-    \"user_id\": {\"S\": \"$USER_ID\"},
+	    \"id\": {\"S\": \"$TRIP_5_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_5_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_6_ID\"},
+	    \"user_id\": {\"S\": \"$USER_ID\"},
     \"start_position\": {\"S\": \"Firenze\"},
     \"end_position\": {\"S\": \"Pisa\"},
     \"start_date\": {\"S\": \"2026-05-03T09:15:00+00:00\"},
@@ -443,8 +490,25 @@ aws dynamodb put-item \
     \"start_km\": {\"N\": \"60940\"},
     \"end_km\": {\"N\": \"61170\"},
     \"status\": {\"S\": \"closed\"}
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name trips \
+  --item "{
+	    \"id\": {\"S\": \"$TRIP_6_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_6_ID\"},
+	    \"commit_id\": {\"S\": \"$COMMIT_8_ID\"},
+	    \"user_id\": {\"S\": \"$USER_4_ID\"},
+	    \"start_position\": {\"S\": \"Padova\"},
+	    \"end_position\": {\"S\": \"Verona\"},
+	    \"start_date\": {\"S\": \"2026-05-14T08:10:00+00:00\"},
+	    \"end_date\": {\"S\": \"2026-05-14T10:00:00+00:00\"},
+	    \"start_km\": {\"N\": \"38680\"},
+	    \"end_km\": {\"N\": \"38835\"},
+	    \"status\": {\"S\": \"closed\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 echo "[UPSERT] Commits"
 
@@ -465,8 +529,7 @@ aws dynamodb put-item \
     \"id\": {\"S\": \"$COMMIT_2_ID\"},
     \"code\": {\"S\": \"COMM-002\"},
     \"description\": {\"S\": \"Ritiro materiali Roma\"},
-    \"status\": {\"S\": \"DONE\"},
-    \"trip_id\": {\"S\": \"$TRIP_1_ID\"}
+    \"status\": {\"S\": \"BACKLOG\"}
   }" \
   --endpoint-url "$ENDPOINT_URL"
 
@@ -517,12 +580,23 @@ aws dynamodb put-item \
 aws dynamodb put-item \
   --table-name commits \
   --item "{
-    \"id\": {\"S\": \"$COMMIT_7_ID\"},
-    \"code\": {\"S\": \"COMM-007\"},
-    \"description\": {\"S\": \"Attivita da pianificare\"},
-    \"status\": {\"S\": \"BACKLOG\"}
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	    \"id\": {\"S\": \"$COMMIT_7_ID\"},
+	    \"code\": {\"S\": \"COMM-007\"},
+	    \"description\": {\"S\": \"Attivita da pianificare\"},
+	    \"status\": {\"S\": \"BACKLOG\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name commits \
+  --item "{
+	    \"id\": {\"S\": \"$COMMIT_8_ID\"},
+	    \"code\": {\"S\": \"COMM-008\"},
+	    \"description\": {\"S\": \"Consegna tecnica Verona\"},
+	    \"status\": {\"S\": \"DONE\"},
+	    \"trip_id\": {\"S\": \"$TRIP_6_ID\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 echo "[UPSERT] Refuelings"
 
@@ -536,8 +610,21 @@ aws dynamodb put-item \
     \"liters\": {\"N\": \"40.5\"},
     \"receipt_photo\": {\"S\": \"receipts/$REFUELING_1_ID.jpg\"},
     \"card_number\": {\"S\": \"CARD-001\"}
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name refuelings \
+  --item "{
+	    \"id\": {\"S\": \"$REFUELING_6_ID\"},
+	    \"date\": {\"S\": \"2026-05-14T07:40:00+00:00\"},
+	    \"car_id\": {\"S\": \"$CAR_6_ID\"},
+	    \"liter_price\": {\"N\": \"1.78\"},
+	    \"liters\": {\"N\": \"31.0\"},
+	    \"receipt_photo\": {\"S\": \"receipts/$REFUELING_6_ID.jpg\"},
+	    \"card_number\": {\"S\": \"CARD-006\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 aws dynamodb put-item \
   --table-name refuelings \
@@ -549,8 +636,21 @@ aws dynamodb put-item \
     \"liters\": {\"N\": \"32.2\"},
     \"receipt_photo\": {\"S\": \"receipts/$REFUELING_2_ID.jpg\"},
     \"card_number\": {\"S\": \"CARD-002\"}
-  }" \
-  --endpoint-url "$ENDPOINT_URL"
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
+
+aws dynamodb put-item \
+  --table-name maintenances \
+  --item "{
+	    \"id\": {\"S\": \"$MAINTENANCE_6_ID\"},
+	    \"car_id\": {\"S\": \"$CAR_6_ID\"},
+	    \"date\": {\"S\": \"2026-04-30T14:45:00+00:00\"},
+	    \"km_at_maintenance\": {\"N\": \"38100\"},
+	    \"cost\": {\"N\": \"210.00\"},
+	    \"description\": {\"S\": \"Controllo generale pre-trasferta\"},
+	    \"type\": {\"S\": \"INSPECTION\"}
+	  }" \
+	  --endpoint-url "$ENDPOINT_URL"
 
 aws dynamodb put-item \
   --table-name refuelings \
