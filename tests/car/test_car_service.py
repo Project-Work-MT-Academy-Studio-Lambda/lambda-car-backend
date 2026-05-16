@@ -89,7 +89,7 @@ class TestCarService:
                 car_id=CAR_ID,
                 plate="CD456EF",
                 model="Toyota Yaris",
-                km_total=23000,
+                km_total=46000,
                 km_servicing=30000,
                 km_wheels=40000,
                 fuel_type="GASOLINE",

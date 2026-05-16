@@ -27,7 +27,7 @@ class FakeUserService:
         self.password_changed = cmd
         return self.user
 
-    def delete_user(self, user_id):
+    def delete_user(self, user_id, current_user_id=None):
         self.deleted_id = user_id
 
 

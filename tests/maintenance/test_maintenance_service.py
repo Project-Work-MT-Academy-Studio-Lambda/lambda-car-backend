@@ -1,4 +1,5 @@
 from uuid import uuid4
+from types import SimpleNamespace
 
 import pytest
 
@@ -9,12 +10,17 @@ class FakeCarRepository:
     def __init__(self, existing_car=True):
         self.existing_car = existing_car
         self.requested_car_ids = []
+        self.saved = None
+        self.car = SimpleNamespace(mileage=SimpleNamespace(km_total=45000))
 
     def get_by_id(self, car_id):
         self.requested_car_ids.append(car_id)
         if not self.existing_car:
             return None
-        return object()
+        return self.car
+
+    def save(self, car):
+        self.saved = car
 
 
 class FakeMaintenanceRepository:

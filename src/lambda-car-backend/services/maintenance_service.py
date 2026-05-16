@@ -9,6 +9,7 @@ from ..constants import Constants
 from ..domain.maintenance import Maintenance
 from ..repositories.car_repository import CarRepository
 from ..repositories.maintenance_repository import MaintenanceRepository
+from ..repositories.application_transaction import ApplicationTransactionManager
 from ..logger import get_logger
 
 
@@ -17,15 +18,18 @@ class MaintenanceService:
         self,
         maintenance_repository: MaintenanceRepository,
         car_repository: CarRepository,
+        transaction_manager: ApplicationTransactionManager | None = None,
     ):
         self.maintenance_repository = maintenance_repository
         self.car_repository = car_repository
+        self.transaction_manager = transaction_manager
         self.logger = get_logger(__name__)
 
-    def _get_car_or_raise(self, car_id: UUID) -> None:
+    def _get_car_or_raise(self, car_id: UUID):
         car = self.car_repository.get_by_id(car_id)
         if car is None:
             raise ValueError(Constants.CAR_NOT_FOUND)
+        return car
 
     def _get_maintenance_or_raise(self, maintenance_id: UUID) -> Maintenance:
         maintenance = self.maintenance_repository.get_by_id(maintenance_id)
@@ -34,7 +38,9 @@ class MaintenanceService:
         return maintenance
 
     def create_maintenance(self, cmd: CreateMaintenanceCommand) -> Maintenance:
-        self._get_car_or_raise(cmd.car_id)
+        car = self._get_car_or_raise(cmd.car_id)
+        if cmd.km_at_maintenance < car.mileage.km_total:
+            raise ValueError(Constants.KM_AT_MAINTENANCE_CANNOT_BE_LESS_THAN_CAR_KM)
 
         maintenance = Maintenance(
             id=uuid4(),
@@ -46,7 +52,15 @@ class MaintenanceService:
             type=cmd.type,
         )
 
-        self.maintenance_repository.save(maintenance)
+        car.mileage.km_total = cmd.km_at_maintenance
+        if self.transaction_manager:
+            transaction = self.transaction_manager.begin()
+            transaction.save_car(car)
+            transaction.save_maintenance(maintenance)
+            transaction.commit()
+        else:
+            self.car_repository.save(car)
+            self.maintenance_repository.save(maintenance)
         return maintenance
 
     def get_maintenance(self, maintenance_id: UUID) -> Maintenance:
@@ -61,7 +75,9 @@ class MaintenanceService:
 
     def update_maintenance(self, cmd: UpdateMaintenanceCommand) -> Maintenance:
         maintenance = self._get_maintenance_or_raise(cmd.maintenance_id)
-        self._get_car_or_raise(cmd.car_id)
+        car = self._get_car_or_raise(cmd.car_id)
+        if cmd.km_at_maintenance < car.mileage.km_total:
+            raise ValueError(Constants.KM_AT_MAINTENANCE_CANNOT_BE_LESS_THAN_CAR_KM)
 
         maintenance.car_id = cmd.car_id
         maintenance.description = cmd.description
@@ -70,7 +86,15 @@ class MaintenanceService:
         maintenance.cost = Decimal(str(cmd.cost))
         maintenance.type = cmd.type
 
-        self.maintenance_repository.save(maintenance)
+        car.mileage.km_total = cmd.km_at_maintenance
+        if self.transaction_manager:
+            transaction = self.transaction_manager.begin()
+            transaction.save_car(car)
+            transaction.save_maintenance(maintenance)
+            transaction.commit()
+        else:
+            self.car_repository.save(car)
+            self.maintenance_repository.save(maintenance)
         return maintenance
 
     def delete_maintenance(self, maintenance_id: UUID) -> None:

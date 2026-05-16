@@ -5,6 +5,7 @@ from .infrastructure.dynamodb.repositories.dynamodb_trip_repository import Dynam
 from .infrastructure.dynamodb.repositories.dynamodb_refueling_repository import DynamoDbRefuelingRepository
 from .infrastructure.dynamodb.repositories.dynamodb_commit_repository import DynamoDbCommitRepository
 from .infrastructure.dynamodb.repositories.dynamodb_maintenance_repository import DynamoDbMaintenanceRepository
+from .infrastructure.dynamodb.application_transaction import DynamoDbApplicationTransactionManager
 
 from .infrastructure.s3.s3_receipt_photo_storage import S3ReceiptPhotoStorage
 
@@ -43,6 +44,7 @@ _trip_repository = DynamoDbTripRepository(_tables.trip_table)
 _refueling_repository = DynamoDbRefuelingRepository(_tables.refueling_table)
 _commit_repository = DynamoDbCommitRepository(_tables.commit_table)
 _maintenance_repository = DynamoDbMaintenanceRepository(_tables.maintenance_table)
+_transaction_manager = DynamoDbApplicationTransactionManager(_tables.resource, _tables.table_names)
 
 _receipt_photo_storage = S3ReceiptPhotoStorage()
 
@@ -124,6 +126,7 @@ def get_trip_service() -> TripService:
         car_repository=_car_repository,
         user_repository=_user_repository,
         commit_repository=_commit_repository,
+        transaction_manager=_transaction_manager,
     )
 
 
@@ -144,6 +147,7 @@ def get_maintenance_service() -> MaintenanceService:
     return MaintenanceService(
         maintenance_repository=_maintenance_repository,
         car_repository=_car_repository,
+        transaction_manager=_transaction_manager,
     )
 
 def get_refueling_service() -> RefuelingService:

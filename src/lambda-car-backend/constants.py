@@ -90,5 +90,11 @@ class Constants:
     NO_ACTIVE_TRIP = "There is no active trip for this car"
 
     END_KM_CANNOT_BE_LESS_THAN_START_KM = "End km cannot be less than start km"
+    START_KM_CANNOT_BE_LESS_THAN_CAR_KM = "Start km cannot be less than current car km"
+    END_KM_CANNOT_BE_LESS_THAN_CAR_KM = "End km cannot be less than current car km"
+    KM_AT_MAINTENANCE_CANNOT_BE_LESS_THAN_CAR_KM = "Maintenance km cannot be less than current car km"
+    KM_TOTAL_CANNOT_DECREASE = "Total km cannot be less than current car km"
+    CANNOT_DELETE_CURRENT_ADMIN = "Cannot delete the currently authenticated admin user"
+    TRANSACTION_FAILED = "Atomic application transaction failed"
 
     INTERNAL_SERVER_ERROR = "Internal server error: cannot perform {action_name} action"

@@ -172,6 +172,7 @@ create_table_if_not_exists commits \
   --attribute-definitions \
       AttributeName=id,AttributeType=S \
       AttributeName=code,AttributeType=S \
+      AttributeName=trip_id,AttributeType=S \
   --key-schema \
       AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
@@ -180,6 +181,13 @@ create_table_if_not_exists commits \
       "IndexName": "code-index",
       "KeySchema": [
         {"AttributeName": "code", "KeyType": "HASH"}
+      ],
+      "Projection": {"ProjectionType": "ALL"}
+    },
+    {
+      "IndexName": "trip_id-index",
+      "KeySchema": [
+        {"AttributeName": "trip_id", "KeyType": "HASH"}
       ],
       "Projection": {"ProjectionType": "ALL"}
     }
@@ -758,4 +766,136 @@ aws dynamodb put-item \
   }" \
   --endpoint-url "$ENDPOINT_URL"
 
-echo "[DONE] Local DynamoDB initialized with consistent mock data"
+echo "[UPSERT] Bulk mock dataset"
+
+i=1
+while [ "$i" -le 100 ]; do
+  PADDED=$(printf "%03d" "$i")
+  UUID_SUFFIX=$(printf "%012d" "$i")
+  USER_MOCK_ID="90000000-0000-0000-0000-$UUID_SUFFIX"
+  CAR_MOCK_ID="91000000-0000-0000-0000-$UUID_SUFFIX"
+  TRIP_MOCK_ID="92000000-0000-0000-0000-$UUID_SUFFIX"
+  COMMIT_MOCK_ID="93000000-0000-0000-0000-$UUID_SUFFIX"
+  REFUELING_MOCK_ID="94000000-0000-0000-0000-$UUID_SUFFIX"
+  MAINTENANCE_MOCK_ID="95000000-0000-0000-0000-$UUID_SUFFIX"
+
+  PLATE_NUMBER=$(printf "%03d" "$((100 + i))")
+  CAR_KM=$((20000 + i * 375))
+  TRIP_START_KM=$((CAR_KM - 120 - (i % 80)))
+  TRIP_END_KM="$CAR_KM"
+  SERVICE_KM=$((CAR_KM + 12000))
+  WHEELS_KM=$((CAR_KM + 18000))
+  FUEL_LEVEL=$((25 + (i % 70)))
+  CO2=$(printf "%d.%d" "$((88 + (i % 28)))" "$((i % 10))")
+  LITERS=$(printf "%d.%d" "$((24 + (i % 28)))" "$((i % 10))")
+  LITER_PRICE=$(printf "1.%02d" "$((65 + (i % 25)))")
+  MAINTENANCE_COST=$(printf "%d.00" "$((90 + i * 3))")
+  DAY=$(printf "%02d" "$((1 + (i % 27)))")
+  START_HOUR=$(printf "%02d" "$((7 + (i % 8)))")
+  END_HOUR=$(printf "%02d" "$((10 + (i % 8)))")
+  FUEL_TYPE="DIESEL"
+  MAINTENANCE_TYPE="ROUTINE_SERVICE"
+
+  if [ $((i % 3)) -eq 0 ]; then
+    FUEL_TYPE="GASOLINE"
+  fi
+  if [ $((i % 5)) -eq 0 ]; then
+    MAINTENANCE_TYPE="TIRES"
+  elif [ $((i % 4)) -eq 0 ]; then
+    MAINTENANCE_TYPE="BRAKES"
+  fi
+
+  aws dynamodb put-item \
+    --table-name users \
+    --item "{
+      \"id\": {\"S\": \"$USER_MOCK_ID\"},
+      \"name\": {\"S\": \"Tester $PADDED\"},
+      \"email\": {\"S\": \"tester.$PADDED@test.com\"},
+      \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
+      \"role\": {\"S\": \"USER\"}
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  aws dynamodb put-item \
+    --table-name cars \
+    --item "{
+      \"id\": {\"S\": \"$CAR_MOCK_ID\"},
+      \"plate\": {\"S\": \"ZZ${PLATE_NUMBER}AA\"},
+      \"model\": {\"S\": \"Mock Fleet $PADDED\"},
+      \"co2_per_km\": {\"N\": \"$CO2\"},
+      \"status\": {\"S\": \"FREE\"},
+      \"mileage\": {
+        \"M\": {
+          \"km_total\": {\"N\": \"$CAR_KM\"},
+          \"km_servicing\": {\"N\": \"$SERVICE_KM\"},
+          \"km_wheels\": {\"N\": \"$WHEELS_KM\"}
+        }
+      },
+      \"fuel_info\": {
+        \"M\": {
+          \"type\": {\"S\": \"$FUEL_TYPE\"},
+          \"level\": {\"N\": \"$FUEL_LEVEL\"},
+          \"card\": {\"S\": \"MOCK-CARD-$PADDED\"}
+        }
+      }
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  aws dynamodb put-item \
+    --table-name trips \
+    --item "{
+      \"id\": {\"S\": \"$TRIP_MOCK_ID\"},
+      \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
+      \"commit_id\": {\"S\": \"$COMMIT_MOCK_ID\"},
+      \"user_id\": {\"S\": \"$USER_MOCK_ID\"},
+      \"start_position\": {\"S\": \"Sede mock $PADDED\"},
+      \"end_position\": {\"S\": \"Cantiere mock $PADDED\"},
+      \"start_date\": {\"S\": \"2026-03-${DAY}T${START_HOUR}:00:00+00:00\"},
+      \"end_date\": {\"S\": \"2026-03-${DAY}T${END_HOUR}:30:00+00:00\"},
+      \"start_km\": {\"N\": \"$TRIP_START_KM\"},
+      \"end_km\": {\"N\": \"$TRIP_END_KM\"},
+      \"status\": {\"S\": \"closed\"}
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  aws dynamodb put-item \
+    --table-name commits \
+    --item "{
+      \"id\": {\"S\": \"$COMMIT_MOCK_ID\"},
+      \"code\": {\"S\": \"MOCK-$PADDED\"},
+      \"description\": {\"S\": \"Commessa mock collegata al viaggio $PADDED\"},
+      \"status\": {\"S\": \"DONE\"},
+      \"trip_id\": {\"S\": \"$TRIP_MOCK_ID\"}
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  aws dynamodb put-item \
+    --table-name refuelings \
+    --item "{
+      \"id\": {\"S\": \"$REFUELING_MOCK_ID\"},
+      \"date\": {\"S\": \"2026-03-${DAY}T06:45:00+00:00\"},
+      \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
+      \"liter_price\": {\"N\": \"$LITER_PRICE\"},
+      \"liters\": {\"N\": \"$LITERS\"},
+      \"receipt_photo\": {\"S\": \"receipts/$REFUELING_MOCK_ID.jpg\"},
+      \"card_number\": {\"S\": \"MOCK-CARD-$PADDED\"}
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  aws dynamodb put-item \
+    --table-name maintenances \
+    --item "{
+      \"id\": {\"S\": \"$MAINTENANCE_MOCK_ID\"},
+      \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
+      \"date\": {\"S\": \"2026-02-${DAY}T09:30:00+00:00\"},
+      \"km_at_maintenance\": {\"N\": \"$CAR_KM\"},
+      \"cost\": {\"N\": \"$MAINTENANCE_COST\"},
+      \"description\": {\"S\": \"Manutenzione mock veicolo $PADDED\"},
+      \"type\": {\"S\": \"$MAINTENANCE_TYPE\"}
+    }" \
+    --endpoint-url "$ENDPOINT_URL"
+
+  i=$((i + 1))
+done
+
+echo "[DONE] Local DynamoDB initialized with consistent mock data and 100+ records per entity"

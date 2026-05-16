@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 from ..domain.user import User
 from ..repositories.user_repository import UserRepository
 from ..constants import Constants
+from ..domain.errors import ConflictError
 from ..security.password_hasher import ArgonPasswordHasher
 
 from ..commands.user_commands import (
@@ -58,6 +59,8 @@ class UserService:
         self.logger.debug(f"Password changed successfully for user_id: {cmd.user_id}")
         return user
 
-    def delete_user(self, user_id: UUID) -> None:
-        self.user_repository.get_by_id(user_id)
+    def delete_user(self, user_id: UUID, current_user_id: UUID | None = None) -> None:
+        if current_user_id is not None and str(user_id) == str(current_user_id):
+            raise ConflictError(Constants.CANNOT_DELETE_CURRENT_ADMIN)
+        self._get_user_or_raise(user_id)
         self.user_repository.delete(user_id)

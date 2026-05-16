@@ -20,6 +20,7 @@ from ...services.trip_service import TripService
 from ...logger import get_logger
 
 from ...domain.user import CurrentUser
+from ...domain.errors import ApplicationError
 
 router = APIRouter(prefix="/trips", tags=["trips"])
 logger = get_logger(__name__)
@@ -53,6 +54,8 @@ def open_trip(
         trip = service.open_trip(cmd)
         return _trip_response_with_car(service, trip)
 
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -119,6 +122,8 @@ def update_trip(
         updated_trip = service.update_trip(cmd)
         return _trip_response_with_car(service, updated_trip)
 
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -150,6 +155,8 @@ def close_trip(
         closed_trip = service.close_trip(cmd)
         return _trip_response_with_car(service, closed_trip)
 
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -174,5 +181,7 @@ def delete_trip(
         )
         service.delete_trip(cmd=cmd)
 
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

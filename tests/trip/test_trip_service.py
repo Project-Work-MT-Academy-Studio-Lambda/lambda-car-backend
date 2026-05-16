@@ -48,6 +48,9 @@ class FakeRepository:
     def close_commit_by_trip_id(self, trip_id):
         self.closed_trip_id = trip_id
 
+    def find_by_trip_id(self, trip_id):
+        return [self.item] if self.item and self.item.trip_id == trip_id else []
+
 
 class TestTripService:
     def test_open_trip_updates_commit_car_and_trip(self, car_factory, user_factory, commit_factory):

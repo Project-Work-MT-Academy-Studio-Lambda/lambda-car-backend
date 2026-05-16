@@ -15,6 +15,7 @@ from ...commands.maintenance_commands import (
     UpdateMaintenanceCommand,
 )
 from ...domain.user import CurrentUser
+from ...domain.errors import ApplicationError
 
 router = APIRouter(prefix="/admin/maintenances", tags=["admin-maintenances"])
 logger = get_logger(__name__)
@@ -65,6 +66,8 @@ def create_maintenance(
         maintenance = service.create_maintenance(cmd)
         logger.debug(f"Admin {current_user.id} successfully created maintenance with ID: {maintenance.id}")
         return MaintenanceResponse.from_domain(maintenance)
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         logger.error(f"Error creating maintenance: {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -106,6 +109,8 @@ def update_maintenance(
         maintenance = service.update_maintenance(cmd)
         logger.debug(f"Admin {current_user.id} successfully updated maintenance with ID: {maintenance_id}")
         return MaintenanceResponse.from_domain(maintenance)
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         logger.error(f"Error updating maintenance: {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -51,6 +51,8 @@ class CarService:
         if existing_car is not None and existing_car.id != cmd.car_id:
             self.logger.error(f"Cannot update car with ID: {cmd.car_id}. Plate {cmd.plate} is already in use by car with ID: {existing_car.id}")
             raise ValueError(Constants.CAR_ALREADY_EXISTS)
+        if cmd.km_total < car.mileage.km_total:
+            raise ValueError(Constants.KM_TOTAL_CANNOT_DECREASE)
         car.plate = cmd.plate
         car.model = cmd.model
         car.mileage = Mileage(

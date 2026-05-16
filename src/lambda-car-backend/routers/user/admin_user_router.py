@@ -22,6 +22,7 @@ from ...services.user_service import UserService
 from ...logger import get_logger
 
 from ...domain.user import CurrentUser
+from ...domain.errors import ApplicationError
 
 router = APIRouter(prefix="/admin/users", tags=["admin-users"])
 
@@ -98,7 +99,9 @@ def delete_user(
     service: UserService = Depends(get_user_service),
 ):
     try:
-        service.delete_user(user_id)
+        service.delete_user(user_id, current_user_id=current_user.id)
+    except ApplicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

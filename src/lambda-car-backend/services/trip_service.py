@@ -9,6 +9,7 @@ from ..repositories.car_repository import CarRepository
 from ..repositories.commit_repository import CommitRepository
 from ..repositories.trip_repository import TripRepository
 from ..repositories.user_repository import UserRepository
+from ..repositories.application_transaction import ApplicationTransactionManager
 
 from ..constants import Constants
 from ..domain.enum.commit_status import CommitStatus
@@ -32,11 +33,13 @@ class TripService:
         user_repository: UserRepository,
         car_repository: CarRepository,
         commit_repository: CommitRepository,
+        transaction_manager: ApplicationTransactionManager | None = None,
     ):
         self.trip_repository = trip_repository
         self.user_repository = user_repository
         self.car_repository = car_repository
         self.commit_repository = commit_repository
+        self.transaction_manager = transaction_manager
     
     def _get_trip_or_raise(self, trip_id: UUID) -> Trip:
         trip = self.trip_repository.get_by_id(trip_id)
@@ -84,6 +87,8 @@ class TripService:
         car = self._get_car_or_raise(cmd.car_id)
         user = self._get_user_or_raise(cmd.user_id)
         self._check_active_trip_or_raise(cmd.car_id)
+        if cmd.start_km < car.mileage.km_total:
+            raise ValueError(Constants.START_KM_CANNOT_BE_LESS_THAN_CAR_KM)
         commit = self._get_commit_or_raise(cmd.commit_id)
         trip = Trip(
             id=uuid4(),
@@ -97,9 +102,16 @@ class TripService:
         commit.trip_id = trip.id
         commit.status = CommitStatus.IN_PROGRESS
         car.status = CarStatus.IN_USE
-        self.commit_repository.save(commit)
-        self.car_repository.save(car)
-        self.trip_repository.save(trip)
+        if self.transaction_manager:
+            transaction = self.transaction_manager.begin()
+            transaction.save_commit(commit)
+            transaction.save_car(car)
+            transaction.save_trip(trip)
+            transaction.commit()
+        else:
+            self.commit_repository.save(commit)
+            self.car_repository.save(car)
+            self.trip_repository.save(trip)
         return trip
     
     def close_trip(self, cmd: CloseTripCommand) -> Trip:
@@ -108,11 +120,26 @@ class TripService:
         self._check_user_owns_trip_or_raise(trip=trip, user_id=cmd.user_id)
         self._check_not_active_trip_or_raise(trip.car_id)
         car = self._get_car_or_raise(trip.car_id)
+        if cmd.end_km < car.mileage.km_total:
+            raise ValueError(Constants.END_KM_CANNOT_BE_LESS_THAN_CAR_KM)
         trip.close_trip(cmd.end_position, cmd.end_date, cmd.end_km)
-        self.commit_repository.close_commit_by_trip_id(trip.id)
+        commits = self.commit_repository.find_by_trip_id(trip.id)
+        for commit in commits:
+            commit.status = CommitStatus.DONE
         car.status = CarStatus.FREE
-        self.car_repository.save(car)
-        self.trip_repository.save(trip)
+        car.mileage.km_total = cmd.end_km
+        if self.transaction_manager:
+            transaction = self.transaction_manager.begin()
+            for commit in commits:
+                transaction.save_commit(commit)
+            transaction.save_car(car)
+            transaction.save_trip(trip)
+            transaction.commit()
+        else:
+            for commit in commits:
+                self.commit_repository.save(commit)
+            self.car_repository.save(car)
+            self.trip_repository.save(trip)
         return trip
     
     def get_trip(self, trip_id: UUID) -> Trip:
@@ -124,14 +151,19 @@ class TripService:
             cmd: UpdateTripCommand
     ) -> Trip:
         trip = self.get_trip(cmd.trip_id)
-        if str(trip.user_id) != cmd.user_id:
+        if str(trip.user_id) != str(cmd.user_id):
             raise ValueError(Constants.USER_NOT_OWNER)
         car = self._get_car_or_raise(trip.car_id)
+        target_car = car if trip.car_id == cmd.car_id else self._get_car_or_raise(cmd.car_id)
+        if cmd.start_km < target_car.mileage.km_total:
+            raise ValueError(Constants.START_KM_CANNOT_BE_LESS_THAN_CAR_KM)
+        if cmd.end_km is not None and cmd.end_km < target_car.mileage.km_total:
+            raise ValueError(Constants.END_KM_CANNOT_BE_LESS_THAN_CAR_KM)
         if trip.car_id != cmd.car_id:
             self._check_active_trip_or_raise(cmd.car_id)
             car.status = CarStatus.FREE
             self.car_repository.save(car)
-            car = self._get_car_or_raise(cmd.car_id)
+            car = target_car
             car.status = CarStatus.IN_USE
             self.car_repository.save(car)
         trip.car_id = cmd.car_id
@@ -150,8 +182,14 @@ class TripService:
         self._check_user_owns_trip_or_raise(trip=trip, user_id=cmd.user_id)
         car = self._get_car_or_raise(trip.car_id)
         car.status = CarStatus.FREE
-        self.car_repository.save(car)
-        self.trip_repository.delete(cmd.trip_id)
+        if self.transaction_manager:
+            transaction = self.transaction_manager.begin()
+            transaction.save_car(car)
+            transaction.delete_trip(cmd.trip_id)
+            transaction.commit()
+        else:
+            self.car_repository.save(car)
+            self.trip_repository.delete(cmd.trip_id)
     
     def get_car_for_trip(self, trip_id: UUID) -> Car:
         trip = self._get_trip_or_raise(trip_id)
