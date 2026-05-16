@@ -3,6 +3,7 @@ set -e
 
 ENDPOINT_URL="${ENDPOINT_URL:-http://localhost:8001}"
 REGION="${AWS_DEFAULT_REGION:-eu-west-1}"
+MOCK_RECORD_COUNT="${MOCK_RECORD_COUNT:-100}"
 
 export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-fake}"
 export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-fakepassword}"
@@ -766,10 +767,67 @@ aws dynamodb put-item \
   }" \
   --endpoint-url "$ENDPOINT_URL"
 
-echo "[UPSERT] Bulk mock dataset"
+echo "[UPSERT] Bulk mock dataset (batched writes, 25 items per request)"
+
+BATCH_DIR=$(mktemp -d "${TMPDIR:-/tmp}/lambda-car-seed.XXXXXX")
+trap 'rm -rf "$BATCH_DIR"' EXIT
+
+init_batch() {
+  TABLE_NAME=$1
+  BATCH_FILE="$BATCH_DIR/$TABLE_NAME.json"
+  printf '{"%s":[' "$TABLE_NAME" > "$BATCH_FILE"
+  eval "${TABLE_NAME}_BATCH_COUNT=0"
+}
+
+flush_batch() {
+  TABLE_NAME=$1
+  COUNT=$(eval "printf '%s' \"\${${TABLE_NAME}_BATCH_COUNT:-0}\"")
+
+  if [ -z "$COUNT" ] || [ "$COUNT" -eq 0 ]; then
+    return
+  fi
+
+  BATCH_FILE="$BATCH_DIR/$TABLE_NAME.json"
+  printf ']}' >> "$BATCH_FILE"
+  aws dynamodb batch-write-item \
+    --request-items "file://$BATCH_FILE" \
+    --endpoint-url "$ENDPOINT_URL" >/dev/null
+  init_batch "$TABLE_NAME"
+}
+
+append_batch_item() {
+  TABLE_NAME=$1
+  ITEM_JSON=$2
+  COUNT=$(eval "printf '%s' \"\${${TABLE_NAME}_BATCH_COUNT:-0}\"")
+
+  if [ -z "$COUNT" ]; then
+    COUNT=0
+  fi
+
+  BATCH_FILE="$BATCH_DIR/$TABLE_NAME.json"
+
+  if [ "$COUNT" -gt 0 ]; then
+    printf ',' >> "$BATCH_FILE"
+  fi
+
+  printf '{"PutRequest":{"Item":%s}}' "$ITEM_JSON" >> "$BATCH_FILE"
+  COUNT=$((COUNT + 1))
+  eval "${TABLE_NAME}_BATCH_COUNT=$COUNT"
+
+  if [ "$COUNT" -ge 25 ]; then
+    flush_batch "$TABLE_NAME"
+  fi
+}
+
+init_batch users
+init_batch cars
+init_batch trips
+init_batch commits
+init_batch refuelings
+init_batch maintenances
 
 i=1
-while [ "$i" -le 100 ]; do
+while [ "$i" -le "$MOCK_RECORD_COUNT" ]; do
   PADDED=$(printf "%03d" "$i")
   UUID_SUFFIX=$(printf "%012d" "$i")
   USER_MOCK_ID="90000000-0000-0000-0000-$UUID_SUFFIX"
@@ -805,20 +863,15 @@ while [ "$i" -le 100 ]; do
     MAINTENANCE_TYPE="BRAKES"
   fi
 
-  aws dynamodb put-item \
-    --table-name users \
-    --item "{
+  append_batch_item users "{
       \"id\": {\"S\": \"$USER_MOCK_ID\"},
       \"name\": {\"S\": \"Tester $PADDED\"},
       \"email\": {\"S\": \"tester.$PADDED@test.com\"},
       \"hashed_password\": {\"S\": \"$ADMIN_HASH\"},
       \"role\": {\"S\": \"USER\"}
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
-  aws dynamodb put-item \
-    --table-name cars \
-    --item "{
+  append_batch_item cars "{
       \"id\": {\"S\": \"$CAR_MOCK_ID\"},
       \"plate\": {\"S\": \"ZZ${PLATE_NUMBER}AA\"},
       \"model\": {\"S\": \"Mock Fleet $PADDED\"},
@@ -838,12 +891,9 @@ while [ "$i" -le 100 ]; do
           \"card\": {\"S\": \"MOCK-CARD-$PADDED\"}
         }
       }
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
-  aws dynamodb put-item \
-    --table-name trips \
-    --item "{
+  append_batch_item trips "{
       \"id\": {\"S\": \"$TRIP_MOCK_ID\"},
       \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
       \"commit_id\": {\"S\": \"$COMMIT_MOCK_ID\"},
@@ -855,23 +905,17 @@ while [ "$i" -le 100 ]; do
       \"start_km\": {\"N\": \"$TRIP_START_KM\"},
       \"end_km\": {\"N\": \"$TRIP_END_KM\"},
       \"status\": {\"S\": \"closed\"}
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
-  aws dynamodb put-item \
-    --table-name commits \
-    --item "{
+  append_batch_item commits "{
       \"id\": {\"S\": \"$COMMIT_MOCK_ID\"},
       \"code\": {\"S\": \"MOCK-$PADDED\"},
       \"description\": {\"S\": \"Commessa mock collegata al viaggio $PADDED\"},
       \"status\": {\"S\": \"DONE\"},
       \"trip_id\": {\"S\": \"$TRIP_MOCK_ID\"}
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
-  aws dynamodb put-item \
-    --table-name refuelings \
-    --item "{
+  append_batch_item refuelings "{
       \"id\": {\"S\": \"$REFUELING_MOCK_ID\"},
       \"date\": {\"S\": \"2026-03-${DAY}T06:45:00+00:00\"},
       \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
@@ -879,12 +923,9 @@ while [ "$i" -le 100 ]; do
       \"liters\": {\"N\": \"$LITERS\"},
       \"receipt_photo\": {\"S\": \"receipts/$REFUELING_MOCK_ID.jpg\"},
       \"card_number\": {\"S\": \"MOCK-CARD-$PADDED\"}
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
-  aws dynamodb put-item \
-    --table-name maintenances \
-    --item "{
+  append_batch_item maintenances "{
       \"id\": {\"S\": \"$MAINTENANCE_MOCK_ID\"},
       \"car_id\": {\"S\": \"$CAR_MOCK_ID\"},
       \"date\": {\"S\": \"2026-02-${DAY}T09:30:00+00:00\"},
@@ -892,10 +933,16 @@ while [ "$i" -le 100 ]; do
       \"cost\": {\"N\": \"$MAINTENANCE_COST\"},
       \"description\": {\"S\": \"Manutenzione mock veicolo $PADDED\"},
       \"type\": {\"S\": \"$MAINTENANCE_TYPE\"}
-    }" \
-    --endpoint-url "$ENDPOINT_URL"
+    }"
 
   i=$((i + 1))
 done
 
-echo "[DONE] Local DynamoDB initialized with consistent mock data and 100+ records per entity"
+flush_batch users
+flush_batch cars
+flush_batch trips
+flush_batch commits
+flush_batch refuelings
+flush_batch maintenances
+
+echo "[DONE] Local DynamoDB initialized with consistent mock data and $MOCK_RECORD_COUNT bulk records per entity"
