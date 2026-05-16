@@ -2,6 +2,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from ..domain.car import Car
+from ..domain.enum.car_status import CarStatus
 
 class MileageSchema(BaseModel):
     km_total: int = Field(..., ge=0)
@@ -20,6 +21,7 @@ class CreateCarRequest(BaseModel):
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
     co2_per_km: float | None = None
+    status: CarStatus | None = None
 
 
 class UpdateCarRequest(BaseModel):
@@ -28,12 +30,14 @@ class UpdateCarRequest(BaseModel):
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
     co2_per_km: float | None = None
+    status: CarStatus | None = None
 
 
 class CarResponse(BaseModel):
     id: UUID
     plate: str
     model: str | None
+    status: str
     mileage: MileageSchema
     fuel_info: FuelInfoSchema
     co2_per_km: float | None = None
@@ -44,6 +48,7 @@ class CarResponse(BaseModel):
             id=car.id,
             plate=car.plate,
             model=car.model,
+            status=car.status.value if hasattr(car.status, "value") else car.status,
             mileage=MileageSchema(
                 km_total=car.mileage.km_total,
                 km_servicing=car.mileage.km_servicing,

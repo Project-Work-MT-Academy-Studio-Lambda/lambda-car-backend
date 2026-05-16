@@ -47,7 +47,9 @@ class TestCarRouter:
 
         assert client.get("/api/v1/lambdacar/admin/cars").status_code == 200
         assert client.get("/api/v1/lambdacar/admin/cars/").status_code == 200
-        assert client.get("/api/v1/lambdacar/admin/cars/active").status_code == 200
+        active_response = client.get("/api/v1/lambdacar/admin/cars/active")
+        assert active_response.status_code == 200
+        assert active_response.json()[0]["status"] == "FREE"
         assert client.get(f"/api/v1/lambdacar/admin/cars/{CAR_ID}").status_code == 200
 
         payload = {
@@ -55,6 +57,7 @@ class TestCarRouter:
             "model": "Fiat Panda",
             "mileage": {"km_total": 45000, "km_servicing": 50000, "km_wheels": 60000},
             "fuel_info": {"type": "DIESEL", "level": 70, "card": "CARD-001"},
+            "status": "FREE",
         }
         assert client.post("/api/v1/lambdacar/admin/cars/", json=payload).status_code == 201
         assert service.created_command.plate == "AB123CD"

@@ -52,7 +52,7 @@ class Trip:
         if end_km < self.start_km:
             raise ValueError(Constants.END_KM_CANNOT_BE_LESS_THAN_START_KM)
         
-        self.status = TripStatus.CLOSED.value
+        self.status = TripStatus.CLOSED
         self.end_position = end_position
         self.end_date = end_date
         self.end_km = end_km

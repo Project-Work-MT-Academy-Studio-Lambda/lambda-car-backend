@@ -4,6 +4,8 @@ from datetime import datetime
 from ....domain.enum.trip_status import TripStatus
 
 def trip_to_item(trip: Trip) -> dict:
+    status = trip.status.value if isinstance(trip.status, TripStatus) else str(trip.status)
+
     return {
         'id': str(trip.id),
         'car_id': str(trip.car_id),
@@ -15,7 +17,7 @@ def trip_to_item(trip: Trip) -> dict:
         'end_position': trip.end_position,
         'end_date': trip.end_date.isoformat() if trip.end_date else None,
         'end_km': trip.end_km,
-        'status': trip.status.value
+        'status': status
     }
 
 def item_to_trip(item: dict) -> Trip:

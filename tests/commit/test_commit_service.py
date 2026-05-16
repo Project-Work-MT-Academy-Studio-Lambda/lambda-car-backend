@@ -4,8 +4,9 @@ from tests.conftest import COMMIT_ID, TRIP_ID, app_module
 
 
 class FakeCommitRepository:
-    def __init__(self, commit=None):
+    def __init__(self, commit=None, commits=None):
         self.commit = commit
+        self.commits = commits
         self.saved = None
         self.deleted_id = None
 
@@ -22,6 +23,8 @@ class FakeCommitRepository:
         self.deleted_id = commit_id
 
     def find_all(self):
+        if self.commits is not None:
+            return self.commits
         return [self.commit] if self.commit else []
 
     def find_by_status(self, status):
@@ -82,3 +85,35 @@ class TestCommitService:
         )
 
         assert service.get_commits_for_trip(TRIP_ID) == [commit]
+
+    def test_import_commits_creates_backlog_commits(self):
+        service_module = app_module("services.commit_service")
+        command_module = app_module("commands.commit_commands")
+        CommitStatus = app_module("domain.enum.commit_status").CommitStatus
+        repository = FakeCommitRepository()
+        service = service_module.CommitService(repository, FakeTripRepository())
+
+        result = service.import_commits(
+            command_module.ImportCommitsCommand(
+                items=[
+                    command_module.ImportCommitItemCommand(
+                        code="COMM-010",
+                        description="Nuova commessa da Excel",
+                    )
+                ]
+            )
+        )
+
+        assert result == {"created": 1, "updated": 0, "skipped": 0}
+        assert repository.saved.status == CommitStatus.BACKLOG
+
+    def test_backlog_includes_every_not_done_commit(self, commit_factory):
+        service_module = app_module("services.commit_service")
+        CommitStatus = app_module("domain.enum.commit_status").CommitStatus
+        backlog = commit_factory(code="COMM-010", status=CommitStatus.BACKLOG)
+        in_progress = commit_factory(code="COMM-011", status=CommitStatus.IN_PROGRESS)
+        done = commit_factory(code="COMM-012", status=CommitStatus.DONE)
+        repository = FakeCommitRepository(commits=[backlog, in_progress, done])
+        service = service_module.CommitService(repository, FakeTripRepository())
+
+        assert service.find_backlog_commits() == [backlog, in_progress]

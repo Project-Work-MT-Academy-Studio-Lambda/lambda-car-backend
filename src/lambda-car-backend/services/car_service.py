@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 from ..commands.car_commands import CreateCarCommand, UpdateCarCommand
 from ..constants import Constants
 from ..domain.car import Car, Mileage, FuelInfo
+from ..domain.enum.car_status import CarStatus
 from ..repositories.car_repository import CarRepository
 from ..logger import get_logger
 
@@ -31,6 +32,7 @@ class CarService:
                 card=cmd.fuel_card,
             ),
             co2_per_km=cmd.co2_per_km,
+            status=CarStatus(cmd.status) if cmd.status else CarStatus.FREE,
         )
 
         self.car_repository.save(car)
@@ -62,6 +64,7 @@ class CarService:
             card=cmd.fuel_card,
         )
         car.co2_per_km = cmd.co2_per_km
+        car.status = CarStatus(cmd.status) if cmd.status else car.status
         self.logger.debug(f"Car with ID: {cmd.car_id} updated successfully. New plate: {car.plate}")
         self.car_repository.save(car)
         return car

@@ -58,7 +58,11 @@ class CommitService:
         return self.commit_repository.find_all()
     
     def find_backlog_commits(self) -> list[Commit]:
-        return self.commit_repository.find_by_status(CommitStatus.BACKLOG)
+        return [
+            commit
+            for commit in self.commit_repository.find_all()
+            if commit.status not in (CommitStatus.DONE, CommitStatus.DONE.value)
+        ]
 
     def update_commit(
         self,
@@ -103,6 +107,7 @@ class CommitService:
                     id=uuid4(),
                     code=code,
                     description=description,
+                    status=CommitStatus.BACKLOG,
                 )
                 self.commit_repository.save(commit)
                 created += 1

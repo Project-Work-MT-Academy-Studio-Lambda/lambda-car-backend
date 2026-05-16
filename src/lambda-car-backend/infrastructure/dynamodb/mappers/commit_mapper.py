@@ -1,5 +1,6 @@
 from uuid import UUID
 from ....domain.commit import Commit
+from ....domain.enum.commit_status import CommitStatus
 
 
 def commit_to_item(commit: Commit) -> dict:
@@ -8,7 +9,7 @@ def commit_to_item(commit: Commit) -> dict:
         "trip_id": str(commit.trip_id) if commit.trip_id else None,
         "code": commit.code,
         "description": commit.description,
-        "status": commit.status,
+        "status": commit.status.value if hasattr(commit.status, "value") else commit.status,
     }
 
 def item_to_commit(item: dict) -> Commit:
@@ -17,5 +18,5 @@ def item_to_commit(item: dict) -> Commit:
         trip_id=UUID(item["trip_id"]) if item.get("trip_id") else None,
         code=item["code"],
         description=item["description"],
-        status=item["status"],
+        status=CommitStatus(item["status"]),
     )

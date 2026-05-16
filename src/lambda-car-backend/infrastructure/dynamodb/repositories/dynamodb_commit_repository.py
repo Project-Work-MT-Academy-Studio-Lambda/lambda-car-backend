@@ -6,6 +6,7 @@ from ....repositories.commit_repository import CommitRepository
 from ..mappers.commit_mapper import commit_to_item, item_to_commit
 
 from ....domain.enum.role import Role
+from ....domain.enum.commit_status import CommitStatus
 
 
 class DynamoDbCommitRepository(CommitRepository):
@@ -44,8 +45,9 @@ class DynamoDbCommitRepository(CommitRepository):
         return [item_to_commit(item) for item in response.get("Items", [])]
     
     def find_by_status(self, status):
+        status_value = status.value if hasattr(status, "value") else status
         response = self.commit_table.scan(
-            FilterExpression=Attr("status").eq(status)
+            FilterExpression=Attr("status").eq(status_value)
         )
         return [item_to_commit(item) for item in response.get("Items", [])]
     
@@ -65,5 +67,5 @@ class DynamoDbCommitRepository(CommitRepository):
     def close_commit_by_trip_id(self, trip_id: UUID):
         commits = self.find_by_trip_id(trip_id)
         for commit in commits:
-            commit.status = "closed"
+            commit.status = CommitStatus.DONE
             self.save(commit)

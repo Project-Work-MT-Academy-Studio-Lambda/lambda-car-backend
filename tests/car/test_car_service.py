@@ -95,9 +95,11 @@ class TestCarService:
                 fuel_type="GASOLINE",
                 fuel_level=45,
                 fuel_card="CARD-002",
+                status="MAINTENANCE",
             )
         )
         assert updated.plate == "CD456EF"
+        assert updated.status.value == "MAINTENANCE"
         assert repository.saved == updated
 
         service.delete_car(CAR_ID)

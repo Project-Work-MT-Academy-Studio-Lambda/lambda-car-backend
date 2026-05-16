@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .settings import load_settings
 
@@ -23,6 +24,14 @@ settings = load_settings()
 app = FastAPI(
     title="LambdaCar Backend",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(admin_auth_router, prefix=settings.api_prefix)

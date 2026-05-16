@@ -56,6 +56,7 @@ def create_car(
             fuel_type=payload.fuel_info.type,
             fuel_level=payload.fuel_info.level,
             fuel_card=payload.fuel_info.card,
+            status=payload.status,
         )
         logger.debug(f"CreateCarCommand created successfully for plate: {payload.plate}")
         car = service.create_car(cmd)
@@ -98,6 +99,7 @@ def update_car(
             fuel_type=payload.fuel_info.type,
             fuel_level=payload.fuel_info.level,
             fuel_card=payload.fuel_info.card,
+            status=payload.status,
         )
         car = service.update_car(cmd)
         logger.debug(f"Admin {current_user.id} successfully updated car with ID: {car_id}")

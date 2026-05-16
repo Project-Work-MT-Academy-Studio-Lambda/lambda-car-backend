@@ -105,3 +105,28 @@ class TestTripService:
 
         assert service.car_repository.saved.id == CAR_ID
         assert service.trip_repository.deleted_id == TRIP_ID
+
+    def test_close_trip_keeps_status_as_enum_for_persistence(self, trip_factory, user_factory, car_factory, commit_factory):
+        service_module = app_module("services.trip_service")
+        command_module = app_module("commands.trip_commands")
+        TripStatus = app_module("domain.enum.trip_status").TripStatus
+        trip = trip_factory()
+        service = service_module.TripService(
+            trip_repository=FakeTripRepository(trip=trip, active_trip=trip),
+            user_repository=FakeRepository(user_factory()),
+            car_repository=FakeRepository(car_factory()),
+            commit_repository=FakeRepository(commit_factory()),
+        )
+
+        closed = service.close_trip(
+            command_module.CloseTripCommand(
+                trip_id=TRIP_ID,
+                user_id=USER_ID,
+                end_position="Napoli",
+                end_date=trip.start_date,
+                end_km=45225,
+            )
+        )
+
+        assert closed.status == TripStatus.CLOSED
+        assert service.trip_repository.saved.status == TripStatus.CLOSED

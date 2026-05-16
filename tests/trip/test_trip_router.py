@@ -2,8 +2,9 @@ from tests.conftest import CAR_ID, COMMIT_ID, TRIP_ID, USER_ID, app_module
 
 
 class FakeTripService:
-    def __init__(self, trip):
+    def __init__(self, trip, car=None):
         self.trip = trip
+        self.car = car
         self.opened = None
         self.updated = None
         self.closed = None
@@ -21,6 +22,9 @@ class FakeTripService:
 
     def get_trip(self, trip_id):
         return self.trip
+
+    def get_car_for_trip(self, trip_id):
+        return self.car
 
     def update_trip(self, cmd):
         self.updated = cmd
@@ -47,9 +51,9 @@ class TestTripRouter:
             }
         )
 
-    def test_trip_routes(self, api_client_factory, trip_factory):
+    def test_trip_routes(self, api_client_factory, trip_factory, car_factory):
         trip = trip_factory()
-        service = FakeTripService(trip)
+        service = FakeTripService(trip, car_factory())
         client = self._client(api_client_factory, service)
 
         payload = {
@@ -67,6 +71,7 @@ class TestTripRouter:
         list_response = client.get("/api/v1/lambdacar/trips/")
         assert list_response.status_code == 200
         assert list_response.json()[0]["commit_id"] == str(trip.commit_id)
+        assert list_response.json()[0]["car"]["plate"] == "AB123CD"
         admin_list_response = client.get("/api/v1/lambdacar/admin/trips/")
         assert admin_list_response.status_code == 200
         assert admin_list_response.json()[0]["user_id"] == str(trip.user_id)

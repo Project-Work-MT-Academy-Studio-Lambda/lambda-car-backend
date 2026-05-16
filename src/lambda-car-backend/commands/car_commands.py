@@ -12,6 +12,7 @@ class CreateCarCommand:
     fuel_level: int | None = None
     fuel_card: str | None = None
     co2_per_km: float | None = None
+    status: str | None = None
 
 @dataclass
 class UpdateCarCommand:
@@ -25,3 +26,4 @@ class UpdateCarCommand:
     fuel_level: int | None = None
     fuel_card: str | None = None
     co2_per_km: float | None = None
+    status: str | None = None

@@ -25,6 +25,13 @@ router = APIRouter(prefix="/trips", tags=["trips"])
 logger = get_logger(__name__)
 
 
+def _trip_response_with_car(service: TripService, trip) -> TripResponse:
+    try:
+        car = service.get_car_for_trip(trip.id)
+    except ValueError:
+        car = None
+    return TripResponse.from_domain(trip, car=car)
+
 
 @router.post("/", response_model=TripResponse, status_code=status.HTTP_201_CREATED)
 def open_trip(
@@ -44,7 +51,7 @@ def open_trip(
         )
         logger.debug(f"OpenTripCommand created successfully {cmd}")
         trip = service.open_trip(cmd)
-        return TripResponse.from_domain(trip)
+        return _trip_response_with_car(service, trip)
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -56,7 +63,7 @@ def list_my_trips(
     service: TripService = Depends(get_trip_service),
 ):
     trips = service.get_trips_for_user(current_user.id)
-    return [TripResponse.from_domain(trip) for trip in trips]
+    return [_trip_response_with_car(service, trip) for trip in trips]
 
 
 @router.get("/{trip_id}", response_model=TripResponse)
@@ -75,7 +82,7 @@ def get_trip(
                 detail="You cannot access this trip",
             )
 
-        return TripResponse.from_domain(trip)
+        return _trip_response_with_car(service, trip)
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -110,7 +117,7 @@ def update_trip(
         )
 
         updated_trip = service.update_trip(cmd)
-        return TripResponse.from_domain(updated_trip)
+        return _trip_response_with_car(service, updated_trip)
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -141,7 +148,7 @@ def close_trip(
         )
 
         closed_trip = service.close_trip(cmd)
-        return TripResponse.from_domain(closed_trip)
+        return _trip_response_with_car(service, closed_trip)
 
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

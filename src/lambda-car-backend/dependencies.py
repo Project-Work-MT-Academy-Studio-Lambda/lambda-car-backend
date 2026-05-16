@@ -20,8 +20,8 @@ from .security.password_hasher import ArgonPasswordHasher
 from .security.token_service import TokenService
 from .constants import Constants
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+from fastapi import Cookie, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .settings import load_settings
 
 from .domain.user import CurrentUser
@@ -46,7 +46,18 @@ _maintenance_repository = DynamoDbMaintenanceRepository(_tables.maintenance_tabl
 
 _receipt_photo_storage = S3ReceiptPhotoStorage()
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+
+
+def get_request_token(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    session_token: str | None = Cookie(default=None, alias=_settings.session_cookie_name),
+) -> str:
+    if credentials is not None:
+        return credentials.credentials
+    if session_token:
+        return session_token
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=Constants.INVALID_TOKEN)
 
 def get_auth_service() -> AuthService:
     return AuthService(
@@ -62,17 +73,17 @@ def get_user_service() -> UserService:
     )
 
 def get_current_user(
-    credentials=Depends(security),
+    token=Depends(get_request_token),
 ):
     try:
-        user_id = _token_service.verify_token(credentials.credentials)
+        user_id = _token_service.verify_token(token)
         return user_id
     except Exception:
         raise HTTPException(status_code=401, detail=Constants.INVALID_TOKEN)
 
-def get_current_token_payload(credentials=Depends(security)):
+def get_current_token_payload(token=Depends(get_request_token)):
     try:
-        return _token_service.verify_token(credentials.credentials)
+        return _token_service.verify_token(token)
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

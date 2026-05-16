@@ -2,6 +2,7 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 
+from ..domain.car import Car
 from ..domain.trip import Trip
 from ..domain.enum.trip_status import TripStatus
 
@@ -29,9 +30,26 @@ class CloseTripRequest(BaseModel):
     end_km: int
 
 
+class TripCarResponse(BaseModel):
+    id: UUID
+    plate: str
+    model: str | None = None
+    status: str | None = None
+
+    @classmethod
+    def from_domain(cls, car: Car) -> "TripCarResponse":
+        return cls(
+            id=car.id,
+            plate=car.plate,
+            model=car.model,
+            status=car.status.value if hasattr(car.status, "value") else car.status,
+        )
+
+
 class TripResponse(BaseModel):
     id: UUID
     car_id: UUID
+    car: TripCarResponse | None = None
     commit_id: UUID | None = None
     user_id: UUID
     start_position: str
@@ -45,10 +63,11 @@ class TripResponse(BaseModel):
     duration: int | None = None
 
     @classmethod
-    def from_domain(cls, trip: Trip) -> "TripResponse":
+    def from_domain(cls, trip: Trip, car: Car | None = None) -> "TripResponse":
         return cls(
             id=trip.id,
             car_id=trip.car_id,
+            car=TripCarResponse.from_domain(car) if car else None,
             commit_id=trip.commit_id,
             user_id=trip.user_id,
             start_position=trip.start_position,
